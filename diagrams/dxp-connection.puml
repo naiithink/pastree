@@ -1,7 +1,7 @@
 @startuml
 !pragma teoz true
 skinparam monochrome true
-skinparam defaultFontName Courier New
+skinparam defaultFontName Courier
 
 title DXP Connection
 mainframe **sd** DXPConnection
@@ -47,12 +47,12 @@ Sender -> Sender: Determine next node
 
 ' alt 2
 alt Next node exists
-Sender --> Recipient: [101 MORE]\nSend node and tell "there is at least one more node"
+Sender --> Recipient: [1001 MORE]\nSend node and tell "there is at least one more node"
 Recipient -> Recipient: Accumulate Chang checksum
 
 ' alt 2
 else No more nodes
-Sender --> Recipient: [100 DONE]\nSend node contents,\nthe respond status 100 DONE signals "there is no more nodes"
+Sender --> Recipient: [1000 DONE]\nSend node contents,\nthe respond status 1000 DONE signals "there is no more nodes"
 Recipient -> Recipient: Accumulate Chang checksum
 Recipient -> Sender: [PACK "<JOB_ID>"\nDIGEST: "CHANG_DIGEST"] Send Change checksum
 Sender -> Sender: Compare "ENG_DIGEST" with "CHANGE_DIGEST"
