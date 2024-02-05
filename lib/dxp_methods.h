@@ -1,14 +1,15 @@
-#ifndef DXP_METHODS_H
-#define DXP_METHODS_H
+#ifndef HEADER_DXP_METHODS_H
+#define HEADER_DXP_METHODS_H
 
 #define DXP_METHOD_MAX_NAME_LEN         9
 #define DXP_MAX_FIELD_PAIR_LENGTH       80
 #define DXP_MAX_FIELD_LENGTH            (DXP_MAX_FIELD_PAIR_LENGTH / 2)
+#define DXP_METHOD_NAME_LIST_TERM       '$'
 
-#define DXP_METHODS \
-    X("EDEFN")      \
-    X("PLUCK")      \
-    X("PICK")       \
+#define DXP_METHODS                     \
+    X("EDEFN")                          \
+    X("PLUCK")                          \
+    X("PICK")                           \
     X("PACK")
 
 #define DXP_METHOD_EDEFN                (int) 0
@@ -23,4 +24,4 @@ char *methods[] = {
 "$"
 };
 
-#endif /* DXP_METHODS_H */
+#endif /* HEADER_DXP_METHODS_H */

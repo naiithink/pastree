@@ -1,21 +1,22 @@
 #include "dxp.h"
 
-#include <string.h>
-
 #include "dxp_common.h"
 #include "dxp_common.c"
 #include "dxp_methods.h"
 #include "dxp_status.h"
+#include "dxp_tidbits.h"
 
 int dxp_get_method(char *token)
 {
-    int res = -1;
+    int res = 0;
     int method_index = 0;
     char *method_name = methods[method_index];
 
     while (*methods[method_index] != '$')
     {
         method_name = methods[method_index];
+
+        dxp_strntrim(token, DXP_METHOD_MAX_NAME_LEN);
 
         if (strncmp(dxp_strntrim(token, DXP_METHOD_MAX_NAME_LEN), method_name, DXP_METHOD_MAX_NAME_LEN) == 0)
         {
@@ -90,7 +91,7 @@ int dxp_parse_response(char *reponse_text, dxp_response *response_p)
         if (strncmp(token, DXP_RESPONSE_PROPNAME_SERVER_VERSION, DXP_MAX_FIELD_LENGTH) == 0)
             response_p->server_version = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
         else if (strncmp(token, DXP_RESPONSE_PROPNAME_DATE, DXP_MAX_FIELD_LENGTH) == 0)
-            response_p->date = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
+            response_p->date = dxp_parse_datetime(strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context), NULL);
         else if (strncmp(token, DXP_RESPONSE_PROPNAME_JOB_ID, DXP_MAX_FIELD_LENGTH) == 0)
             response_p->job_id = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
         else if (strncmp(token, DXP_RESPONSE_PROPNAME_CONTENT_TYPE, DXP_MAX_FIELD_LENGTH) == 0)
