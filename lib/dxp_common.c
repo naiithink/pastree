@@ -7,13 +7,19 @@ char *dxp_strntrim(char *str, size_t lim)
     char *res = NULL;
     char *head = str;
 
-    while (*head == ' ' && lim-- > 0)
+    while (*head == ' ' && lim > 0)
+    {
         head++;
+        lim--;
+    }
 
     res = head;
 
-    while (*head != '\0' && *head != ' ' && lim-- > 0)
+    while (*head != '\0' && *head != ' ' && lim > 0)
+    {
         head++;
+        lim--;
+    }
 
     *head = '\0';
 
@@ -72,4 +78,11 @@ size_t dxp_format_datetime(char *buf, char *format, time_t time)
     buf[len - 3] = ':';
 
     return ++char_count;
+}
+
+int main(void)
+{
+    char s[] = "  jel  ";
+    printf("%s", dxp_strntrim(s, 10));
+    return 0;
 }

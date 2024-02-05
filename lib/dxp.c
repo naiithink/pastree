@@ -11,8 +11,6 @@ int dxp_get_method(char *token)
 {
     int res = -1;
     int method_index = 0;
-    char *method_head = methods;
-
     char *method_name = methods[method_index];
 
     while (*methods[method_index] != '$')
