@@ -100,12 +100,16 @@ on the URI "dxp://example.com/usr/local/lib/ldxp":
 
 Client request:
 
+>>>>>START REQUEST>>>>>
 PLUCK /usr/local/lib/ldxp
 DXP-Client: 1.0.0
 Host: example.com
 
+<<<<<END REQUEST<<<<<
+
 Server response:
 
+>>>>>START RESPONSE>>>>>
 0 OK
 DXP-Server: 1.0.0
 Date: 2024-02-04T19:50:00+07:00
@@ -113,7 +117,7 @@ Job-ID: 2024-02-04-12345
 Content-Type: inode/directory
 
 data...
-
+<<<<<END RESPONSE<<<<<
 
 3. Methods
 ----------
@@ -136,8 +140,8 @@ data...
 +===============+=============+=====================================================+
 | -1            | UNDEFINED   | Undefined                                           |
 | 0             | OK          | The request processing is fine.                     |
-| 1000          | DONE        | There is no more node to PICK.                      |
-| 1001          | MORE        | There is at least 1 more node to PICK.              |
+| 1000          | DONE        | There are no more nodes to PICK.                    |
+| 1001          | MORE        | There is at least one more node to PICK.            |
 +===============+=============+=====================================================+
 
 Complemented with the standard C error numbers.
