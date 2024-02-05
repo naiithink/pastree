@@ -79,10 +79,3 @@ size_t dxp_format_datetime(char *buf, char *format, time_t time)
 
     return ++char_count;
 }
-
-int main(void)
-{
-    char s[] = "  jel  ";
-    printf("%s", dxp_strntrim(s, 10));
-    return 0;
-}
