@@ -108,7 +108,7 @@ Server response:
 
 0 OK
 DXP-Server: 1.0.0
-Date: 2024-02-04T19:50:00+07:00
+Date: 2024-02-04T19:50:00+0700Z
 Job-ID: 2024-02-04-12345
 Content-Type: inode/directory
 
