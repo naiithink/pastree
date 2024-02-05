@@ -54,12 +54,12 @@ unsigned long __dxp_job_table_hash(char *s, int len, unsigned long max, dxp_hash
 
 int dxp_job_table_init(dxp_hash_table **table_buf, int table_size)
 {
-    if (__seed == 0)
-        __dxp_job_table_hash_seed_init();
-
     /* Do not overwrite initialized table */
     if (*table_buf != NULL || table_size < 0)
         return 1;
+
+    if (__seed == 0)
+        __dxp_job_table_hash_seed_init();
 
     *table_buf = calloc(table_size, sizeof(dxp_hash_table));
 
