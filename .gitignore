@@ -1,3 +1,8 @@
+# Project
+# Commit message draft
+.gitmessage
+
+
 # C
 # Prerequisites
 *.d
@@ -197,3 +202,13 @@ Sessionx.vim
 tags
 # Persistent undo
 [._]*.un~
+
+
+# VS Code
+.vscode/
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix

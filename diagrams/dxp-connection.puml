@@ -52,7 +52,7 @@ Recipient -> Recipient: Accumulate Chang checksum
 
 ' alt 2
 else No more nodes
-Sender --> Recipient: [1000 DONE]\nSend node contents,\nthe respond status 1000 DONE signals "there is no more nodes"
+Sender --> Recipient: [1000 DONE]\nSend node contents,\nthe respond status 1000 DONE signals "there are no more nodes"
 Recipient -> Recipient: Accumulate Chang checksum
 Recipient -> Sender: [PACK "<JOB_ID>"\nDIGEST: "CHANG_DIGEST"] Send Change checksum
 Sender -> Sender: Compare "ENG_DIGEST" with "CHANGE_DIGEST"
