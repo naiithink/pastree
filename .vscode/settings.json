@@ -28,6 +28,8 @@
         "dxp_methods.h": "c",
         "dxp_tidbits.h": "c",
         "dxp_status.h": "c",
-        "dxp_common.h": "c"
+        "dxp_common.h": "c",
+        "fcntl.h": "c",
+        "socket.h": "c"
     },
 }

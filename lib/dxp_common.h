@@ -1,6 +1,8 @@
 #ifndef HEADER_DXP_COMMON_H
 #define HEADER_DXP_COMMON_H
 
+/* Do not include the non-standard <sys/errno.h> */
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
