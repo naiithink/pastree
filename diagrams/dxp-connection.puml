@@ -1,0 +1,75 @@
+@startuml
+!pragma teoz true
+skinparam monochrome true
+skinparam defaultFontName Courier
+
+title DXP Connection
+mainframe **sd** DXPConnection
+
+participant ":Recipient" as Recipient
+participant ":Sender" as Sender
+participant ":Filesystem" as Filesystem
+
+autonumber
+
+Recipient -> Sender: [PLUCK "<PATH>"]
+activate Sender
+
+Sender -> Filesystem: Check "<PATH>" permissions
+activate Filesystem
+Filesystem --> Sender: "<PATH>" permissions
+deactivate Filesystem
+
+' alt 1
+alt "<PATH>" permitted
+activate Recipient
+Sender --> Recipient: [0 OK\nJob-ID: "<JOB_ID>"]\nReady for exchange
+
+' loop 1
+loop TIMEOUT > 0
+Recipient -> Sender: [PICK "<JOB_ID>"]\nGet next node for "<JOB_ID>"
+
+' break 1
+break Next node does not exist (invalid request)
+Sender --> Recipient: [74 EBADMSG]
+
+' break 1
+end
+
+Sender -> Filesystem: Request read next node
+activate Filesystem
+Filesystem --> Sender: Return requested node
+deactivate Filesystem
+
+Sender -> Sender: Advance TIMEOUT with predefined value
+Sender -> Sender: Accumulate Eng checksum
+Sender -> Sender: Determine next node
+
+' alt 2
+alt Next node exists
+Sender --> Recipient: [1001 MORE]\nSend node and tell "there is at least one more node"
+Recipient -> Recipient: Accumulate Chang checksum
+
+' alt 2
+else No more nodes
+Sender --> Recipient: [1000 DONE]\nSend node contents,\nthe respond status 1000 DONE signals "there are no more nodes"
+Recipient -> Recipient: Accumulate Chang checksum
+Recipient -> Sender: [PACK "<JOB_ID>"\nDIGEST: "CHANG_DIGEST"] Send Change checksum
+Sender -> Sender: Compare "ENG_DIGEST" with "CHANGE_DIGEST"
+Sender --> Recipient: [<0 OK | 52 EBADE>]\nSend checksum result
+
+' alt 2
+end
+
+' loop 1
+end
+
+' alt 1
+else "<PATH>" not permitted
+Sender --> Recipient: [<ERROR_CODE> <ERROR_NAME>]\nStandard C error code and name
+'alt 1
+end
+
+Sender --> Recipient: Close connection
+deactivate Sender
+@enduml

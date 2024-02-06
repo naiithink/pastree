@@ -1,0 +1,257 @@
+===============================================
+Directory Exchange Protocol (DXP) Specification
+===============================================
+
+Status: Draft
+Author: Potsawat Thinkanwatthana
+Created at: 2024-02-04
+Modified at: 2024-02-04
+
+
+Abstract
+--------
+
+The Directory Exchange Protocol (DXP) is a stateful application-level protocol
+for reading, exchanging, and forming directory trees. This document describes
+the overall architecture of DXP. In this definition are core protocol elements
+and the "dxp" Uniform Resource Identifier (URI) schemes.
+
+
+Copyright Notice
+----------------
+
+MIT License
+
+Copyright (c) 2024 Potsawat Thinkanwatthana
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+1. Introduction
+---------------
+
+1.1. Purpose
+------------
+
+The Directory Exchange Protocol (DXP) is a stateful, application-level,
+request/response protocol that enables exchanging of directory tree structure
+information through the Internet. Data is transfered in the format that allows
+the receiver to replicate the source directory while preserving its relative
+metadata and contents. Reading the source directory tree is done top-down
+without following extra-tree soft links.
+
+
+2. Terminology and Core Concepts
+--------------------------------
+
+2.1. Eng and Chang
+------------------
+
+The source directory tree is called "Eng". The target directory tree is called
+"Chang". This is to distinguish the term "source" as in "source address"
+from the term "source" as in "source directory", avoiding ambiguilty.
+
+2.2. Connections, Clients, and Servers
+--------------------------------------
+
+DXP is a client/server protocol that operates over a reliable transport-
+or session-layer "connection".
+
+A DXP "client" is a program that establishes a connection to the server
+for the purpose of sending one or more DXP requests. A DXP "server" is a program
+that accepts connections in order to service DXP requests by sending DXP
+responses.
+...
+
+2.3. Tidbits
+------------
+
+DXP is a stateful request/response protocol for exchanging "tidbits" across
+a connection. The terms "sender" and "recipient" refer to any implementation
+that sends or receives a given tidbit, respectively.
+...
+
+2.4. User Agents
+----------------
+
+...
+
+2.5. Example Tidbit Exchange
+----------------------------
+
+The following illustrates a typical DXP tidbit exchange for a PLUCK request
+on the URI "dxp://example.com/usr/local/lib/ldxp":
+
+Client request:
+
+>>>>>START REQUEST>>>>>
+PLUCK /usr/local/lib/ldxp
+DXP-Client: 1.0.0
+Host: example.com
+
+<<<<<END REQUEST<<<<<
+
+Server response:
+
+>>>>>START RESPONSE>>>>>
+0 OK
+DXP-Server: 1.0.0
+Date: 2024-02-04T19:50:00+07:00
+Job-ID: 2024-02-04-12345
+Content-Type: inode/directory
+
+data...
+<<<<<END RESPONSE<<<<<
+
+3. Methods
+----------
+
++===============+===================================================================+
+| Method Name   | Description                                                       |
++===============+===================================================================+
+| PLUCK         | Transfer a directory tree                                         |
+| PICK          | Get next directory tree node                                      |
+| PACK          | Transfer the Chang checksum caculated from tidbit stream          |
++===============+===================================================================+
+...
+
+
+4. Response Status Codes
+------------------------
+
++===============+=============+=====================================================+
+| Status Code   | Status Name | Meaning                                             |
++===============+=============+=====================================================+
+| -1            | UNDEFINED   | Undefined                                           |
+| 0             | OK          | The request processing is fine.                     |
+| 1000          | DONE        | There are no more nodes to PICK.                    |
+| 1001          | MORE        | There is at least one more node to PICK.            |
++===============+=============+=====================================================+
+
+Complemented with the standard C error numbers.
+
+
+5. DXP Connections
+------------------
+
+                                                                                              DXP Connection                                                                                    
+                                                                                                                                                                                                
+                                        ┌──────────┐                                                        ┌───────┐                                          ┌───────────┐                    
+                                        │:Recipient│                                                        │:Sender│                                          │:Filesystem│                    
+                                        └────┬─────┘                                                        └───┬───┘                                          └─────┬─────┘                    
+                                             │                       1 [PLUCK "<PATH>"]                        ┌┴┐                                                   │                          
+                                             │ ───────────────────────────────────────────────────────────────>│ │                                                   │                          
+                                             │                                                                 │ │                                                   │                          
+                                             │                                                                 │ │           2 Check "<PATH>" permissions           ┌┴┐                         
+                                             │                                                                 │ │ ────────────────────────────────────────────────>│ │                         
+                                             │                                                                 │ │                                                  └┬┘                         
+                                            ┌┴┐                                                                │ │              3 "<PATH>" permissions               │                          
+                                            │ │                                                                │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│                          
+                                            │ │                                                                │ │                                                   │                          
+                                            │ │                                                                │ │                                                   │                          
+          ╔══════╤══════════════════════════╪═╪════════════════════════════════════════════════════════════════╪═╪═══════════════════════════════════════════════════╪═════════════════════════╗
+          ║ ALT  │  "<PATH>" permitted      │ │                                                                │ │                                                   │                         ║
+          ╟──────┘                          │ │                                                                │ │                                                   │                         ║
+          ║                                 │ │                      4 [0 OK                                   │ │                                                   │                         ║
+          ║                                 │ │                      Job-ID: "<JOB_ID>"]                       │ │                                                   │                         ║
+          ║                                 │ │                      Ready for exchange                        │ │                                                   │                         ║
+          ║                                 │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │ │                                                   │                         ║
+          ║                                 │ │                                                                │ │                                                   │                         ║
+          ║                                 │ │                                                                │ │                                                   │                         ║
+          ║         ╔═══════╤═══════════════╪═╪════════════════════════════════════════════════════════════════╪═╪═══════════════════════════════════════════════════╪═══════════════╗         ║
+          ║         ║ LOOP  │  TIMEOUT > 0  │ │                                                                │ │                                                   │               ║         ║
+          ║         ╟───────┘               │ │                                                                │ │                                                   │               ║         ║
+          ║         ║                       │ │                  5 [PICK "<JOB_ID>"]                           │ │                                                   │               ║         ║
+          ║         ║                       │ │                  Get next node for "<JOB_ID>"                  │ │                                                   │               ║         ║
+          ║         ║                       │ │ ──────────────────────────────────────────────────────────────>│ │                                                   │               ║         ║
+          ║         ║                       │ │                                                                │ │                                                   │               ║         ║
+          ║         ║                       │ │                                                                │ │                                                   │               ║         ║
+          ║         ║         ╔════════╤════╪═╪════════════════════════════════════════════════════════════════╪═╪════════════╗                                      │               ║         ║
+          ║         ║         ║ BREAK  │  Next node does not exist (invalid request)                           │ │            ║                                      │               ║         ║
+          ║         ║         ╟────────┘    │ │                                                                │ │            ║                                      │               ║         ║
+          ║         ║         ║             │ │                         6 [74 EBADMSG]                         │ │            ║                                      │               ║         ║
+          ║         ║         ║             │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │ │            ║                                      │               ║         ║
+          ║         ║         ╚═════════════╪═╪════════════════════════════════════════════════════════════════╪═╪════════════╝                                      │               ║         ║
+          ║         ║                       │ │                                                                │ │                                                   │               ║         ║
+          ║         ║                       │ │                                                                │ │             7 Request read next node             ┌┴┐              ║         ║
+          ║         ║                       │ │                                                                │ │ ────────────────────────────────────────────────>│ │              ║         ║
+          ║         ║                       │ │                                                                │ │                                                  └┬┘              ║         ║
+          ║         ║                       │ │                                                                │ │              8 Return requested node              │               ║         ║
+          ║         ║                       │ │                                                                │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│               ║         ║
+          ║         ║                       │ │                                                                │ │                                                   │               ║         ║
+          ║         ║                       │ │                                                                │ │────┐                                              │               ║         ║
+          ║         ║                       │ │                                                                │ │    │ 9 Advance TIMEOUT with predefined value      │               ║         ║
+          ║         ║                       │ │                                                                │ │<───┘                                              │               ║         ║
+          ║         ║                       │ │                                                                │ │                                                   │               ║         ║
+          ║         ║                       │ │                                                                │ │────┐                                              │               ║         ║
+          ║         ║                       │ │                                                                │ │    │ 10 Accumulate Eng checksum                   │               ║         ║
+          ║         ║                       │ │                                                                │ │<───┘                                              │               ║         ║
+          ║         ║                       │ │                                                                │ │                                                   │               ║         ║
+          ║         ║                       │ │                                                                │ │────┐                                              │               ║         ║
+          ║         ║                       │ │                                                                │ │    │ 11 Determine next node                       │               ║         ║
+          ║         ║                       │ │                                                                │ │<───┘                                              │               ║         ║
+          ║         ║                       │ │                                                                │ │                                                   │               ║         ║
+          ║         ║                       │ │                                                                │ │                                                   │               ║         ║
+          ║         ║         ╔══════╤══════╪═╪════════════════════════════════════════════════════════════════╪═╪═══════════════════════════════════════════════════╪══╗            ║         ║
+          ║         ║         ║ ALT  │  Next node exists                                                       │ │                                                   │  ║            ║         ║
+          ║         ║         ╟──────┘      │ │                                                                │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │      12 [1001 MORE]                                            │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │      Send node and tell "there is at least one more node"      │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │                                                                │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │────┐                                                           │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │    │ 13 Accumulate Chang checksum                              │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │<───┘                                                           │ │                                                   │  ║            ║         ║
+          ║         ║         ╠═════════════╪═╪════════════════════════════════════════════════════════════════╪═╪═══════════════════════════════════════════════════╪══╣            ║         ║
+          ║         ║         ║ [No more nodes]                                                                │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │ 14 [1000 DONE]                                                 │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │ Send node contents,                                            │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │ the respond status 1000 DONE signals "there are no more nodes" │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │                                                                │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │────┐                                                           │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │    │ 15 Accumulate Chang checksum                              │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │<───┘                                                           │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │                                                                │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │          16 [PACK "<JOB_ID>"                                   │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │          DIGEST: "CHANG_DIGEST"] Send Change checksum          │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │ ──────────────────────────────────────────────────────────────>│ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │                                                                │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │                                                                │ │────┐                                              │  ║            ║         ║
+          ║         ║         ║             │ │                                                                │ │    │ 17 Compare "ENG_DIGEST" with "CHANGE_DIGEST" │  ║            ║         ║
+          ║         ║         ║             │ │                                                                │ │<───┘                                              │  ║            ║         ║
+          ║         ║         ║             │ │                                                                │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │                     18 [<0 OK | 52 EBADE>]                     │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │                     Send checksum result                       │ │                                                   │  ║            ║         ║
+          ║         ║         ║             │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │ │                                                   │  ║            ║         ║
+          ║         ║         ╚═════════════╪═╪════════════════════════════════════════════════════════════════╪═╪═══════════════════════════════════════════════════╪══╝            ║         ║
+          ║         ╚═══════════════════════╪═╪════════════════════════════════════════════════════════════════╪═╪═══════════════════════════════════════════════════╪═══════════════╝         ║
+          ╠═════════════════════════════════╪═╪════════════════════════════════════════════════════════════════╪═╪═══════════════════════════════════════════════════╪═════════════════════════╣
+          ║ ["<PATH>" not permitted]        │ │                                                                │ │                                                   │                         ║
+          ║                                 │ │                 19 [<ERROR_CODE> <ERROR_NAME>]                 │ │                                                   │                         ║
+          ║                                 │ │                 Standard C error code and name                 │ │                                                   │                         ║
+          ║                                 │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │ │                                                   │                         ║
+          ╚═════════════════════════════════╪═╪════════════════════════════════════════════════════════════════╪═╪═══════════════════════════════════════════════════╪═════════════════════════╝
+                                            │ │                                                                └┬┘                                                   │                          
+                                            │ │                       20 Close connection                       │                                                    │                          
+                                            │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│                                                    │                          
+                                        ┌───│ │────┐                                                        ┌───┴───┐                                          ┌─────┴─────┐                    
+                                        │:Re│ │ient│                                                        │:Sender│                                          │:Filesystem│                    
+                                        └───│ │────┘                                                        └───────┘                                          └───────────┘                    
+                                            └┬┘                                                                                                                                                 
