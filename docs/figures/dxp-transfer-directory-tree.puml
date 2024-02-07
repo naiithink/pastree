@@ -1,0 +1,205 @@
+@startuml
+!pragma teoz true
+skinparam monochrome true
+skinparam defaultFontName Courier
+
+title TransferDirectoryTree
+mainframe **sd** TransferDirectoryTree
+
+participant "fs:SenderFilesystem" as SenderFS
+participant "bf:SenderBuffer" as SenderBF
+participant "ps:Sender" as Sender
+participant "ps:Recipient" as Recipient
+' participant "fs:RecipientFilesystem" as RecipientFS
+
+autonumber
+
+legend bottom left
+1.  Request to receive a directory tree rooted at <DIR_NAME>
+3.  INSERT INTO cookie_table
+        (id, expire_at, is_valid, next_path, ...)
+        VALUES (<COOKIE>, <EXPIRE_DATETIME>, 0, <NEXT_PATH>, ...);
+4.  Request to send a directory tree rooted at <DIR_NAME>
+6.  Accept to receive the directory tree
+7.  SELECT expire_at
+        FROM cookie_table
+        WHERE id = <COOKIE>;
+10. Tell that the cookie in request has expired.
+11. Tell that the request is faulty.
+12. UPDATE cookie_table
+        SET is_valid = 1
+        WHERE id = <COOKIE>;
+13. Tell "the cookie expires at <EXPIRE_DATETIME>,
+    you may request back to get the next available node"
+14. Get next node
+15. SELECT expire_at, is_valid, next_path
+        FROM cookie_table
+        WHERE id = <COOKIE>;
+' 18. UPDATE cookie_table
+'         SET expire_at = <(current datetime)>,
+'         WHERE id = <COOKIE>;
+18. Tell that the cookie in request has expired.
+19. Tell that the cookie in request is invalid.
+20. Tell that the request is faulty.
+25. UPDATE cookie_table
+        SET expire_at = <(current datetime)>
+        WHERE id = <COOKIE>;
+26. Send node and Eng checksum, and tell "this is the last node."
+30. UPDATE cookie_table
+        SET next_path = <NEXT_PATH>
+        WHERE id = <COOKIE>;
+31. Send node and tell "there is at least one node left."
+33. Refuse to receive the directory tree
+34. UPDATE cookie_table
+        SET expire_at = <(current datetime)>
+        WHERE id = <COOKIE>;
+' 35. Connection has been closed.
+endlegend
+
+activate Sender
+
+' opt 0
+opt Recipient requests to receive a directory tree
+
+Recipient -> Sender: PULL <PATH>\n...
+
+' opt 0
+end
+
+Sender -> Sender: Generate cookie
+
+Sender ->> SenderBF: Save generated cookie
+activate SenderBF
+deactivate SenderBF
+
+Sender -> Recipient: PUSH <DIR_NAME>\nCookie: <COOKIE>\nCookie-Expire: <EXPIRE_DATETIME>\n...
+
+activate Recipient
+
+Recipient -> Recipient: Remember cookie
+
+' alt 0
+alt Recipient accepts to receive
+
+Recipient -->> Sender: 1000 ACCEPTED\nCookie: <COOKIE>\n...
+
+Sender -> SenderBF: Get cookie state
+activate SenderBF
+SenderBF -->> Sender: Cookie state
+deactivate SenderBF
+
+Sender -> Sender: Check cookie expiry
+
+' break 0
+break Faulty cookie
+
+' break 0 alt 0
+alt Cookie has expired
+
+Sender ->> Recipient: 1002 COOKIE EXPIRED\n...
+
+else Cookie does not exist
+
+Sender ->> Recipient:  74 EBADMSG\n...
+
+' break 0 alt 0
+end
+
+' break 0
+end
+
+Sender ->> SenderBF: Mark cookie as valid
+activate SenderBF
+deactivate SenderBF
+
+Sender ->> Recipient: POLL\nCookie: <COOKIE>\nCookie-Expire: <EXPIRE_DATETIME>\n...
+
+' loop 0
+loop
+
+Recipient -> Sender: PICK <COOKIE>\nCookie: <COOKIE>\n...
+
+Sender -> SenderBF: Get cookie state
+activate SenderBF
+SenderBF -->> Sender: Cookie state
+deactivate SenderBF
+
+Sender -> Sender: Check cookie expiry and validity
+
+' break 1
+break Faulty cookie
+
+' break 1 alt 0
+alt Cookie has expired
+
+Sender ->> Recipient: 1002 COOKIE EXPIRED\n...
+
+else Cookie is invalid
+
+/'
+Or should this condition expires out the cookie instead?
+'/
+
+Sender ->> Recipient: 1003 INVALID COOKIE\n...
+
+else Cookie does not exist
+
+Sender ->> Recipient:  74 EBADMSG\n...
+
+' break 1 alt 0
+end
+
+' break 1
+end
+
+Sender -> SenderFS: Get node contents at path in cookie state
+activate SenderFS
+SenderFS -->> Sender: Node contents
+deactivate SenderFS
+
+Sender -> Sender: Determine forthcoming path
+Sender -> Sender: Calculate Eng checksum
+
+' break 2
+break No nodes left
+
+Sender ->> SenderBF: Expire out the cookie
+activate SenderBF
+deactivate SenderBF
+
+Sender -->> Recipient: 2000 DONE\nDigest: <CHANG_DIGEST>\n...
+Recipient -> Recipient: Forget cookie
+Recipient -> Recipient: Calculate Chang checksum
+Recipient -> Recipient: Compare Eng with Chang checksum
+
+' break 2
+end
+
+Sender ->> SenderBF: Update cookie's next path
+activate SenderBF
+deactivate SenderBF
+
+Sender -->> Recipient: 2001 MORE\n...
+Recipient -> Recipient: Calculate Chang checksum
+
+' loop 0
+end
+
+' alt 0
+else Recipient refuses to receive
+
+Recipient -->> Sender: 1001 DECLINED\n...
+
+Sender ->> SenderBF: Expire out the cookie
+activate SenderBF
+deactivate SenderBF
+
+'alt 0
+end
+
+' Sender ->> Recipient: 54 ECONNRESET\n...
+' Recipient -> Recipient: Terminate
+
+deactivate Recipient
+deactivate Sender
+@enduml
