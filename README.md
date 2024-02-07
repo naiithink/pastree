@@ -38,7 +38,6 @@ Some of the code and concepts are based on my "trials and errors" and side proje
 ### Network Programming and Basic Security Concepts
 
 - ["Casting malloc," cprogramming.com](https://faq.cprogramming.com/cgi-bin/smartfaq.cgi?answer=1047673478&id=1043284351)
-- [Isam, Mohammed, "Let's Build a Linux Shell [Part I]," hackernoon.com](https://hackernoon.com/lets-build-a-linux-shell-part-i-bz3n3vg1)
 - [github.com/naiithink/ku-bs-cs/main: /Y1-02/01418113/](https://github.com/naiithink/ku-bs-cs/tree/main/Y1-02/01418113)
 - [github.com/naiithink/learn](https://github.com/naiithink/learn/)
     - [learn-cc: /src/sockets](https://github.com/naiithink/learn/tree/learn-cc/src/sockets)
@@ -59,6 +58,7 @@ Some of the code and concepts are based on my "trials and errors" and side proje
 
 ### Command Line Interface
 
+- [Isam, Mohammed, "Let's Build a Linux Shell [Part I]," hackernoon.com](https://hackernoon.com/lets-build-a-linux-shell-part-i-bz3n3vg1)
 - [github.com/naiithink/learn](https://github.com/naiithink/learn/)
     - [main: /playgrounds/yep/](https://github.com/naiithink/learn/tree/main/playgrounds/yep)
     - [main: /playgrounds/legacy-yep/](https://github.com/naiithink/learn/tree/main/playgrounds/legacy-yep)
