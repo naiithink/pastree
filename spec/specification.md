@@ -90,27 +90,31 @@ that sends or receives a given tidbit, respectively.
 
 ### Example Tidbit Exchange
 
-The following illustrates a typical DXP tidbit exchange for a PLUCK request
+The following illustrates a typical DXP tidbit exchange for a PUSH request
 on the URI "dxp://example.com/usr/local/lib/ldxp":
 
-sender request:
+Request:
 
 ```
-PLUCK /usr/local/lib/ldxp
-DXP-sender: 1.0.0
+PUSH ldxp
+DXP-Version: 1.0.0
+Date: 2024-02-04T19:50:00+07:00
+From: localhost
+To: example.com
 Token: sometoken
-Host: example.com
 
 ```
 
-receiver response:
+Response:
 
 ```
 0 OK
-DXP-receiver: 1.0.0
+DXP-version: 1.0.0
+Date: 2024-02-04T19:50:30+07:00
+From: localhost
+To: example.com
+Cookie: somecookie
 Token: sometoken
-Date: 2024-02-04T19:50:00+07:00
-Job-ID: 2024-02-04-12345
 Content-Type: inode/directory
 
 data...
@@ -120,7 +124,9 @@ data...
 
 | Method Name | Description                                              |
 | :---------- | :------------------------------------------------------- |
-| PLUCK       | Transfer a directory tree                                |
+| PUSH        | Send a directory tree                                    |
+| PULL        | Retrieve a directory tree                                |
+| POLL        | Reply to start operation                                 |
 | PICK        | Get next directory tree node                             |
 | PACK        | Transfer the Chang checksum caculated from tidbit stream |
 
@@ -158,47 +164,56 @@ Complemented with the standard C error numbers.
                                         ┌─────────┐                              ┌────────────┐                                                           
                                         │ps:Sender│                              │ps:Recipient│                                                           
                                         └────┬────┘                              └─────┬──────┘                                                           
-                                            ┌┴┐────┐                                   │                                                                  
-                                            │ │    │ 1 Generate cookie and token       │                                                                  
+                                            ┌┴┐                                        │                                                                  
+                              ╔══════╤══════╪═╪════════════════════════════════════════╪════════════════╗                                                 
+                              ║ OPT  │  Recipient requests to retrieve a directory tree│                ║                                                 
+                              ╟──────┘      │ │                                        │                ║                                                 
+                              ║             │ │              1 PULL <PATH>             │                ║                                                 
+                              ║             │ │ <───────────────────────────────────────                ║                                                 
+                              ╚═════════════╪═╪════════════════════════════════════════╪════════════════╝                                                 
+                                            │ │                                        │                                                                  
+                                            │ │────┐                                   │                                                                  
+                                            │ │    │ 2 Generate cookie and token       │                                                                  
                                             │ │<───┘                                   │                                                                  
                                             │ │                                        │                                                                  
-                                            │ │      2 PLUCK <DIR_NAME>                ┌┴┐                                                                
+                                            │ │      3 PUSH <DIR_NAME>                 ┌┴┐                                                                
                                             │ │      Token: <TOKEN>                    │ │                                                                
                                             │ │      [Request to transfer a tree       │ │                                                                
                                             │ │      rooted at <DIR_NAME>]             │ │                                                                
                                             │ │ ──────────────────────────────────────>│ │                                                                
                                             │ │                                        │ │                                                                
                                             │ │                                        │ │────┐                                                           
-                                            │ │                                        │ │    │ 3 Remember token                                          
+                                            │ │                                        │ │    │ 4 Remember token                                          
                                             │ │                                        │ │<───┘                                                           
                                             │ │                                        │ │                                                                
                                             │ │                                        │ │                                                                
           ╔══════╤══════════════════════════╪═╪════════════════════════════════════════╪═╪═══════════════════════════════════════════════════════════════╗
           ║ ALT  │  Recipient agrees to receive                                        │ │                                                               ║
           ╟──────┘                          │ │                                        │ │                                                               ║
-          ║                                 │ │           4 1000 READY                 │ │                                                               ║
+          ║                                 │ │           5 1000 READY                 │ │                                                               ║
           ║                                 │ │           Token: <TOKEN>               │ │                                                               ║
           ║                                 │ │           [Ready to receive]           │ │                                                               ║
           ║                                 │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │ │                                                               ║
           ║                                 │ │                                        │ │                                                               ║
           ║                                 │ │────┐                                   │ │                                                               ║
-          ║                                 │ │    │ 5 Verify then renew token         │ │                                                               ║
+          ║                                 │ │    │ 6 Verify then renew token         │ │                                                               ║
           ║                                 │ │<───┘                                   │ │                                                               ║
           ║                                 │ │                                        │ │                                                               ║
-          ║                                 │ │           6 Cookie: <COOKIE>           │ │                                                               ║
-          ║                                 │ │           Token: <TOKEN>               │ │                                                               ║
-          ║                                 │ │           [Send cookie]                │ │                                                               ║
+          ║                                 │ │            7 POLL                      │ │                                                               ║
+          ║                                 │ │            Cookie: <COOKIE>            │ │                                                               ║
+          ║                                 │ │            Token: <TOKEN>              │ │                                                               ║
+          ║                                 │ │            [Send cookie]               │ │                                                               ║
           ║                                 │ │ ──────────────────────────────────────>│ │                                                               ║
           ║                                 │ │                                        │ │                                                               ║
           ║                                 │ │                                        │ │────┐                                                          ║
-          ║                                 │ │                                        │ │    │ 7 Remember cookie and update token                       ║
+          ║                                 │ │                                        │ │    │ 8 Remember cookie and update token                       ║
           ║                                 │ │                                        │ │<───┘                                                          ║
           ║                                 │ │                                        │ │                                                               ║
           ║                                 │ │                                        │ │                                                               ║
           ║         ╔═══════╤═══════════════╪═╪════════════════════════════════════════╪═╪═════════════════════════════════════════════════════╗         ║
           ║         ║ LOOP  │               │ │                                        │ │                                                     ║         ║
           ║         ╟───────┘               │ │                                        │ │                                                     ║         ║
-          ║         ║                       │ │            8 PICK <COOKIE>             │ │                                                     ║         ║
+          ║         ║                       │ │            9 PICK <COOKIE>             │ │                                                     ║         ║
           ║         ║                       │ │            Token: <TOKEN>              │ │                                                     ║         ║
           ║         ║                       │ │            [Get next node]             │ │                                                     ║         ║
           ║         ║                       │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │ │                                                     ║         ║
@@ -207,67 +222,67 @@ Complemented with the standard C error numbers.
           ║         ║         ╔════════╤════╪═╪════════════════════════════════════════╪═╪══════════════╗                                      ║         ║
           ║         ║         ║ BREAK  │  Either cookie not found\nor cookie is INVALID│ │              ║                                      ║         ║
           ║         ║         ╟────────┘    │ │                                        │ │              ║                                      ║         ║
-          ║         ║         ║             │ │         9 74 EBADMSG                   │ │              ║                                      ║         ║
+          ║         ║         ║             │ │         10 74 EBADMSG                  │ │              ║                                      ║         ║
           ║         ║         ║             │ │         [Refuse PICK request           │ │              ║                                      ║         ║
           ║         ║         ║             │ │         then close connection]         │ │              ║                                      ║         ║
           ║         ║         ║             │ │ ──────────────────────────────────────>│ │              ║                                      ║         ║
           ║         ║         ╚═════════════╪═╪════════════════════════════════════════╪═╪══════════════╝                                      ║         ║
           ║         ║                       │ │                                        │ │                                                     ║         ║
           ║         ║                       │ │────┐                                   │ │                                                     ║         ║
-          ║         ║                       │ │    │ 10 Verify token                   │ │                                                     ║         ║
+          ║         ║                       │ │    │ 11 Verify token                   │ │                                                     ║         ║
           ║         ║                       │ │<───┘                                   │ │                                                     ║         ║
           ║         ║                       │ │                                        │ │                                                     ║         ║
           ║         ║                       │ │────┐                                   │ │                                                     ║         ║
-          ║         ║                       │ │    │ 11 Accumulate Eng checksum        │ │                                                     ║         ║
+          ║         ║                       │ │    │ 12 Accumulate Eng checksum        │ │                                                     ║         ║
           ║         ║                       │ │<───┘                                   │ │                                                     ║         ║
           ║         ║                       │ │                                        │ │                                                     ║         ║
           ║         ║                       │ │────┐                                   │ │                                                     ║         ║
-          ║         ║                       │ │    │ 12 Determine next node            │ │                                                     ║         ║
+          ║         ║                       │ │    │ 13 Determine next node            │ │                                                     ║         ║
           ║         ║                       │ │<───┘                                   │ │                                                     ║         ║
           ║         ║                       │ │                                        │ │                                                     ║         ║
           ║         ║                       │ │                                        │ │                                                     ║         ║
           ║         ║         ╔════════╤════╪═╪════════════════════════════════════════╪═╪═══════════════════════════════════════════╗         ║         ║
           ║         ║         ║ BREAK  │  Next node does not exist                     │ │                                           ║         ║         ║
           ║         ║         ╟────────┘    │ │                                        │ │                                           ║         ║         ║
-          ║         ║         ║             │ │     13 2000 DONE                       │ │                                           ║         ║         ║
-          ║         ║         ║             │ │     DIGEST: <CHANG_DIGEST>             │ │                                           ║         ║         ║
+          ║         ║         ║             │ │     14 2000 DONE                       │ │                                           ║         ║         ║
+          ║         ║         ║             │ │     Digest: <CHANG_DIGEST>             │ │                                           ║         ║         ║
           ║         ║         ║             │ │     [Send node and Chang checksum,     │ │                                           ║         ║         ║
           ║         ║         ║             │ │     then close connection]             │ │                                           ║         ║         ║
           ║         ║         ║             │ │ ──────────────────────────────────────>│ │                                           ║         ║         ║
           ║         ║         ║             │ │                                        │ │                                           ║         ║         ║
           ║         ║         ║             │ │                                        │ │────┐                                      ║         ║         ║
-          ║         ║         ║             │ │                                        │ │    │ 14 Forget cookie and token           ║         ║         ║
+          ║         ║         ║             │ │                                        │ │    │ 15 Forget cookie and token           ║         ║         ║
           ║         ║         ║             │ │                                        │ │<───┘                                      ║         ║         ║
           ║         ║         ║             │ │                                        │ │                                           ║         ║         ║
           ║         ║         ║             │ │                                        │ │────┐                                      ║         ║         ║
-          ║         ║         ║             │ │                                        │ │    │ 15 Accumulate Chang checksum         ║         ║         ║
+          ║         ║         ║             │ │                                        │ │    │ 16 Accumulate Chang checksum         ║         ║         ║
           ║         ║         ║             │ │                                        │ │<───┘                                      ║         ║         ║
           ║         ║         ║             │ │                                        │ │                                           ║         ║         ║
           ║         ║         ║             │ │                                        │ │────┐                                      ║         ║         ║
-          ║         ║         ║             │ │                                        │ │    │ 16 Compare Eng and Chang checksum    ║         ║         ║
+          ║         ║         ║             │ │                                        │ │    │ 17 Compare Eng and Chang checksum    ║         ║         ║
           ║         ║         ║             │ │                                        │ │<───┘                                      ║         ║         ║
           ║         ║         ╚═════════════╪═╪════════════════════════════════════════╪═╪═══════════════════════════════════════════╝         ║         ║
           ║         ║                       │ │                                        │ │                                                     ║         ║
           ║         ║                       │ │────┐                                   │ │                                                     ║         ║
-          ║         ║                       │ │    │ 17 Renew token                    │ │                                                     ║         ║
+          ║         ║                       │ │    │ 18 Renew token                    │ │                                                     ║         ║
           ║         ║                       │ │<───┘                                   │ │                                                     ║         ║
           ║         ║                       │ │                                        │ │                                                     ║         ║
-          ║         ║                       │ │ 18 2001 MORE                           │ │                                                     ║         ║
+          ║         ║                       │ │ 19 2001 MORE                           │ │                                                     ║         ║
           ║         ║                       │ │ Token: <TOKEN>                         │ │                                                     ║         ║
           ║         ║                       │ │ [Send node and tell next node exists]  │ │                                                     ║         ║
           ║         ║                       │ │ ──────────────────────────────────────>│ │                                                     ║         ║
           ║         ║                       │ │                                        │ │                                                     ║         ║
           ║         ║                       │ │                                        │ │────┐                                                ║         ║
-          ║         ║                       │ │                                        │ │    │ 19 Update token                                ║         ║
+          ║         ║                       │ │                                        │ │    │ 20 Update token                                ║         ║
           ║         ║                       │ │                                        │ │<───┘                                                ║         ║
           ║         ║                       │ │                                        │ │                                                     ║         ║
           ║         ║                       │ │                                        │ │────┐                                                ║         ║
-          ║         ║                       │ │                                        │ │    │ 20 Accumulate Chang checksum                   ║         ║
+          ║         ║                       │ │                                        │ │    │ 21 Accumulate Chang checksum                   ║         ║
           ║         ║                       │ │                                        │ │<───┘                                                ║         ║
           ║         ╚═══════════════════════╪═╪════════════════════════════════════════╪═╪═════════════════════════════════════════════════════╝         ║
           ╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣
           ║ [Recipient declines to receive]  │                                         │                                                                 ║
-          ║                                  │ 21 1001 DECLINED                        │                                                                 ║
+          ║                                  │ 22 1001 DECLINED                        │                                                                 ║
           ║                                  │ Token: <TOKEN>                          │                                                                 ║
           ║                                  │ [Refuse request then close connection]  │                                                                 ║
           ║                                  │<─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─                                                                 ║
@@ -275,7 +290,7 @@ Complemented with the standard C error numbers.
                                              │                                         │                                                                  
                                              │                                         │                                                                  
                                              │                                         │────┐                                                             
-                                             │                                         │    │ 22 Terminate                                                
+                                             │                                         │    │ 23 Terminate                                                
                                         ┌────┴────┐                              ┌─────┴<───┘                                                             
                                         │ps:Sender│                              │ps:Recipient│                                                           
                                         └─────────┘                              └────────────┘                                                           
