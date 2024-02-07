@@ -1,6 +1,7 @@
 #include "dxp_jobs.h"
 
 #include "dxp_common.h"
+#include "dxp_status.h"
 
 static unsigned long __seed = 0;
 
@@ -13,7 +14,7 @@ static unsigned long __seed = 0;
 int __dxp_job_table_hash_seed_init(void)
 {
     if (__seed != 0)
-        return 1;
+        return __DXP_STATUS_FAILURE;
 
     int res = (unsigned long) time(NULL);
 
@@ -21,11 +22,11 @@ int __dxp_job_table_hash_seed_init(void)
         res++;
 
     if (res < 0)
-        return 1;
+        return __DXP_STATUS_FAILURE;
 
     __seed = res;
 
-    return 0;
+    return __DXP_STATUS_SUCCESS;
 }
 
 /**
@@ -56,17 +57,17 @@ int dxp_job_table_init(dxp_hash_table **table_buf, int table_size)
 {
     /* Do not overwrite initialized table */
     if (*table_buf != NULL || table_size < 0)
-        return 1;
+        return __DXP_STATUS_FAILURE;
 
-    if (__seed == 0)
-        __dxp_job_table_hash_seed_init();
+    if (__seed == 0 && __dxp_job_table_hash_seed_init() == 1)
+        return __DXP_STATUS_FAILURE;
 
     *table_buf = calloc(table_size, sizeof(dxp_hash_table));
 
     if (*table_buf == NULL)
-        return 1;
+        return __DXP_STATUS_FAILURE;
 
-    return 0;
+    return __DXP_STATUS_SUCCESS;
 }
 
 void dxp_job_table_close(dxp_hash_table **table_buf)
@@ -77,7 +78,7 @@ void dxp_job_table_close(dxp_hash_table **table_buf)
 
 int dxp_job_table_add(int job_id, dxp_job_status status, char *resource_path)
 {
-    return -1;
+    return __DXP_STATUS_UNKNOWN;
 }
 
 int main(void)

@@ -1,5 +1,5 @@
-#ifndef HEADER_DXP_H
-#define HEADER_DXP_H
+#ifndef __DXP_H
+#define __DXP_H
 
 #include "dxp_common.h"
 #include "dxp_methods.h"
@@ -49,4 +49,4 @@ int dxp_parse_request(char *, dxp_request *);
  */
 int dxp_parse_response(char *, dxp_response *);
 
-#endif /* HEADER_DXP_H */
+#endif /* __DXP_H */

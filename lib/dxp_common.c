@@ -30,14 +30,14 @@ char *dxp_strntrim(char *str, size_t lim)
 int dxp_split_field_pair(char *token, const char *const field_sep, char **field_pair)
 {
     if (token == NULL)
-        return 1;
+        return __DXP_STATUS_FAILURE;
 
     char *field_split_context;
 
     field_pair[0] = dxp_strntrim(strtok_r(token, field_sep, &field_split_context), DXP_MAX_FIELD_LENGTH);
     field_pair[1] = dxp_strntrim(strtok_r(NULL, field_sep, &field_split_context), DXP_MAX_FIELD_LENGTH);
 
-    return 0;
+    return __DXP_STATUS_SUCCESS;
 }
 
 time_t dxp_parse_datetime(char *buf, char *format)

@@ -1,5 +1,5 @@
-#ifndef HEADER_DXP_JOBS_H
-#define HEADER_DXP_JOBS_H
+#ifndef __DXP_JOBS_H
+#define __DXP_JOBS_H
 
 typedef enum
 {
@@ -21,4 +21,4 @@ void dxp_job_table_close(dxp_hash_table **);
 
 int dxp_job_table_add(int, dxp_job_status, char *);
 
-#endif /* HEADER_DXP_JOBS_H */
+#endif /* __DXP_JOBS_H */

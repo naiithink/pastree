@@ -1,5 +1,5 @@
-#ifndef HEADER_DXP_COMMON_H
-#define HEADER_DXP_COMMON_H
+#ifndef __DXP_COMMON_H
+#define __DXP_COMMON_H
 
 /* Do not include the non-standard <sys/errno.h> */
 #include <errno.h>
@@ -38,4 +38,4 @@ time_t dxp_parse_datetime(char *, char *);
  */
 size_t dxp_format_datetime(char *, char *, time_t);
 
-#endif /* HEADER_DXP_COMMON_H */
+#endif /* __DXP_COMMON_H */

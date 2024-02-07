@@ -32,7 +32,7 @@ int dxp_get_method(char *token)
 
 int dxp_parse_request(char *request_text, dxp_request *request_p)
 {
-    int ok = 0;
+    int ok = __DXP_STATUS_SUCCESS;
 
     int line_len = 0;
     int token_len = 0;
@@ -67,7 +67,7 @@ int dxp_parse_request(char *request_text, dxp_request *request_p)
 
 int dxp_parse_response(char *reponse_text, dxp_response *response_p)
 {
-    int ok = 0;
+    int ok = __DXP_STATUS_SUCCESS;
 
     int line_len = 0;
     int token_len = 0;

@@ -1,5 +1,5 @@
-#ifndef HEADER_DXP_METHODS_H
-#define HEADER_DXP_METHODS_H
+#ifndef __DXP_METHODS_H
+#define __DXP_METHODS_H
 
 #define DXP_METHOD_MAX_NAME_LEN         9
 #define DXP_MAX_FIELD_PAIR_LENGTH       80
@@ -24,4 +24,4 @@ char *methods[] = {
 "$"
 };
 
-#endif /* HEADER_DXP_METHODS_H */
+#endif /* __DXP_METHODS_H */

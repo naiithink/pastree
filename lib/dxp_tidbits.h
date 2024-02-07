@@ -1,5 +1,5 @@
-#ifndef DXP_TIDBITS_H
-#define DXP_TIDBITS_H
+#ifndef __DXP_TIDBITS_H
+#define __DXP_TIDBITS_H
 
 #define DXP_LINE_TERMINATOR                                 "\r\n"
 #define DXP_FIRST_FIELD_SEPARATOR                           " "
@@ -22,4 +22,4 @@
 #define DXP_TIDBIT_REQUEST                                  0
 #define DXP_TIDBIT_RESPONSE                                 1
 
-#endif /* DXP_TIDBITS_H */
+#endif /* __DXP_TIDBITS_H */
