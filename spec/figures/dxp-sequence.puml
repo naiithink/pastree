@@ -64,7 +64,7 @@ Recipient -> Recipient: Accumulate Chang checksum
 end
 
 ' alt 1
-else Recipent declines to receive
+else Recipient declines to receive
 
 Recipient --> Sender: 1001 DECLINED\nToken: <TOKEN>\n[Refuse request then close connection]
 
