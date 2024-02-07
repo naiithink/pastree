@@ -126,7 +126,7 @@ data...
 | :---------- | :------------------------------------------------------- |
 | PUSH        | Send a directory tree                                    |
 | PULL        | Retrieve a directory tree                                |
-| POLL        | Reply to start operation                                 |
+| POLL        | Reply to this tidbit to start operation                  |
 | PICK        | Get next directory tree node                             |
 | PACK        | Transfer the Chang checksum caculated from tidbit stream |
 
