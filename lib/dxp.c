@@ -2,9 +2,6 @@
 
 #include "dxp_common.h"
 #include "dxp_common.c"
-#include "dxp_methods.h"
-#include "dxp_status.h"
-#include "dxp_tidbits.h"
 
 int dxp_get_method(char *token)
 {
@@ -30,7 +27,7 @@ int dxp_get_method(char *token)
     return res;
 }
 
-int dxp_parse_request(char *request_text, dxp_request *request_p)
+int dxp_parse_request(char *request_text, dxp_tidbit *request_p)
 {
     int ok = __DXP_STATUS_SUCCESS;
 
@@ -46,8 +43,8 @@ int dxp_parse_request(char *request_text, dxp_request *request_p)
     token = strtok_r(line, DXP_FIRST_FIELD_SEPARATOR, &request_field_context);
     token_len = strnlen(token, DXP_METHOD_MAX_NAME_LEN);
 
-    request_p->method = dxp_get_method(token);
-    request_p->path = strtok_r(NULL, DXP_FIRST_FIELD_SEPARATOR, &request_field_context);
+    request_p->request_method = dxp_get_method(token);
+    request_p->request_path = strtok_r(NULL, DXP_FIRST_FIELD_SEPARATOR, &request_field_context);
 
     while ((line = strtok_r(NULL, DXP_LINE_TERMINATOR, &request_line_context)) != NULL)
     {
@@ -57,7 +54,7 @@ int dxp_parse_request(char *request_text, dxp_request *request_p)
         if (strncmp(token, DXP_REQUEST_PROPNAME_CLIENT_VERSION, DXP_MAX_FIELD_LENGTH) == 0)
             request_p->client_version = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
         else if (strncmp(token, DXP_REQUEST_PROPNAME_HOST, DXP_MAX_FIELD_LENGTH) == 0)
-            request_p->host = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
+            request_p->request_host = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
         else
             return ok = EBADMSG;
     }
@@ -65,7 +62,7 @@ int dxp_parse_request(char *request_text, dxp_request *request_p)
     return ok;
 }
 
-int dxp_parse_response(char *reponse_text, dxp_response *response_p)
+int dxp_parse_response(char *reponse_text, dxp_tidbit *response_p)
 {
     int ok = __DXP_STATUS_SUCCESS;
 
@@ -81,7 +78,7 @@ int dxp_parse_response(char *reponse_text, dxp_response *response_p)
     token = strtok_r(line, DXP_FIRST_FIELD_SEPARATOR, &request_field_context);
     token_len = strnlen(token, DXP_METHOD_MAX_NAME_LEN);
 
-    response_p->status = dxp_get_method(token);
+    response_p->reponse_status = dxp_get_method(token);
 
     while ((line = strtok_r(NULL, DXP_LINE_TERMINATOR, &request_line_context)) != NULL)
     {
@@ -92,10 +89,10 @@ int dxp_parse_response(char *reponse_text, dxp_response *response_p)
             response_p->server_version = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
         else if (strncmp(token, DXP_RESPONSE_PROPNAME_DATE, DXP_MAX_FIELD_LENGTH) == 0)
             response_p->date = dxp_parse_datetime(strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context), NULL);
-        else if (strncmp(token, DXP_RESPONSE_PROPNAME_JOB_ID, DXP_MAX_FIELD_LENGTH) == 0)
-            response_p->job_id = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
+        else if (strncmp(token, DXP_RESPONSE_PROPNAME_cookie, DXP_MAX_FIELD_LENGTH) == 0)
+            response_p->cookie = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
         else if (strncmp(token, DXP_RESPONSE_PROPNAME_CONTENT_TYPE, DXP_MAX_FIELD_LENGTH) == 0)
-            response_p->content_type = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
+            response_p->reponse_content_type = strtok_r(NULL, DXP_FIELD_SEPARATOR, &request_field_context);
         else
             return ok = EBADMSG;
     }

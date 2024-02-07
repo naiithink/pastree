@@ -1,8 +1,6 @@
 #ifndef __DXP_COMMON_H
 #define __DXP_COMMON_H
 
-/* Do not include the non-standard <sys/errno.h> */
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +13,20 @@
 
 #include <magic.h>
 
+#include "dxp_chip.h"
+#include "dxp_method.h"
+#include "dxp_status.h"
+#include "dxp_tidbit.h"
+
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
+#include <windows.h>
+#define MAX_PATH PATH_MAX
+#elif defined(__APPLE__) || defined(__MACH__)
+#include <sys/syslimits.h>
+#elif defined(__linux__)
+#include <linux/limits.h>
+#endif
+
 /**
  * Trim string
  */
@@ -23,7 +35,7 @@ char *dxp_strntrim(char *, size_t);
 /**
  * Split a key-value pair field
  */
-int dxp_split_field_pair(char *, const char * const, char **);
+int dxp_split_field_pair(char *, const char *const, char **);
 
 /**
  * Parse date time string

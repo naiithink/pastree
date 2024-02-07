@@ -1,8 +1,5 @@
 #include "dxp_common.h"
 
-#include "dxp_methods.h"
-#include "dxp_tidbits.h"
-
 char *dxp_strntrim(char *str, size_t lim)
 {
     char *res = NULL;
