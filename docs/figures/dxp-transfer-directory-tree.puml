@@ -167,7 +167,7 @@ Sender ->> SenderBF: Expire out the cookie
 activate SenderBF
 deactivate SenderBF
 
-Sender -->> Recipient: 2000 DONE\nDigest: <CHANG_DIGEST>\n...
+Sender -->> Recipient: 2000 DONE\nDigest: <ENG_DIGEST>\n...
 Recipient -> Recipient: Forget cookie
 Recipient -> Recipient: Calculate Chang checksum
 Recipient -> Recipient: Compare Eng with Chang checksum
