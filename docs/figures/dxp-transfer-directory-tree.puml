@@ -39,21 +39,24 @@ legend bottom left
 '         SET expire_at = <(current datetime)>,
 '         WHERE id = <COOKIE>;
 18. Tell that the cookie in request has expired.
-19. Tell that the cookie in request is invalid.
-20. Tell that the request is faulty.
-25. UPDATE cookie_table
+19. UPDATE cookie_table
         SET expire_at = <(current datetime)>
         WHERE id = <COOKIE>;
-26. Send node and Eng checksum, and tell "this is the last node."
-30. UPDATE cookie_table
+20. Tell that the request is faulty.
+21. Tell that the request is faulty.
+26. UPDATE cookie_table
+        SET expire_at = <(current datetime)>
+        WHERE id = <COOKIE>;
+27. Send node and Eng checksum, and tell "this is the last node."
+31. UPDATE cookie_table
         SET next_path = <NEXT_PATH>
         WHERE id = <COOKIE>;
-31. Send node and tell "there is at least one node left."
-33. Refuse to receive the directory tree
-34. UPDATE cookie_table
+32. Send node and tell "there is at least one node left."
+34. Refuse to receive the directory tree
+35. UPDATE cookie_table
         SET expire_at = <(current datetime)>
         WHERE id = <COOKIE>;
-' 35. Connection has been closed.
+' 36. Connection has been closed.
 endlegend
 
 activate Sender
@@ -68,7 +71,7 @@ end
 
 Sender -> Sender: Generate cookie
 
-Sender ->> SenderBF: Save generated cookie
+Sender ->> SenderBF: Put cookie record
 activate SenderBF
 deactivate SenderBF
 
@@ -83,9 +86,9 @@ alt Recipient accepts to receive
 
 Recipient -->> Sender: 1000 ACCEPTED\nCookie: <COOKIE>\n...
 
-Sender -> SenderBF: Get cookie state
+Sender -> SenderBF: Get cookie record
 activate SenderBF
-SenderBF -->> Sender: Cookie state
+SenderBF -->> Sender: Cookie record
 deactivate SenderBF
 
 Sender -> Sender: Check cookie expiry
@@ -108,7 +111,7 @@ end
 ' break 0
 end
 
-Sender ->> SenderBF: Mark cookie as valid
+Sender ->> SenderBF: Mark cookie record as valid
 activate SenderBF
 deactivate SenderBF
 
@@ -119,9 +122,9 @@ loop
 
 Recipient -> Sender: PICK <COOKIE>\nCookie: <COOKIE>\n...
 
-Sender -> SenderBF: Get cookie state
+Sender -> SenderBF: Get cookie record
 activate SenderBF
-SenderBF -->> Sender: Cookie state
+SenderBF -->> Sender: Cookie record
 deactivate SenderBF
 
 Sender -> Sender: Check cookie expiry and validity
@@ -136,11 +139,11 @@ Sender ->> Recipient: 1002 COOKIE EXPIRED\n...
 
 else Cookie is invalid
 
-/'
-Or should this condition expires out the cookie instead?
-'/
+Sender ->> SenderBF: Expire out the cookie record
+activate SenderBF
+deactivate SenderBF
 
-Sender ->> Recipient: 1003 INVALID COOKIE\n...
+Sender ->> Recipient: 74 EBADMSG\n...
 
 else Cookie does not exist
 
@@ -152,18 +155,18 @@ end
 ' break 1
 end
 
-Sender -> SenderFS: Get node contents at path in cookie state
+Sender -> SenderFS: Get node contents at path in cookie record
 activate SenderFS
 SenderFS -->> Sender: Node contents
 deactivate SenderFS
 
-Sender -> Sender: Determine forthcoming path
+Sender -> Sender: Determine next path
 Sender -> Sender: Calculate Eng checksum
 
 ' break 2
 break No nodes left
 
-Sender ->> SenderBF: Expire out the cookie
+Sender ->> SenderBF: Expire out the cookie record
 activate SenderBF
 deactivate SenderBF
 
@@ -175,7 +178,7 @@ Recipient -> Recipient: Compare Eng with Chang checksum
 ' break 2
 end
 
-Sender ->> SenderBF: Update cookie's next path
+Sender ->> SenderBF: Update cookie record's next path field
 activate SenderBF
 deactivate SenderBF
 
@@ -190,7 +193,7 @@ else Recipient refuses to receive
 
 Recipient -->> Sender: 1001 DECLINED\n...
 
-Sender ->> SenderBF: Expire out the cookie
+Sender ->> SenderBF: Expire out the cookie record
 activate SenderBF
 deactivate SenderBF
 
