@@ -27,6 +27,10 @@ There are two repositories:
 
 DXP Repository: [github.com/naiithink/dxp](https://github.com/naiithink/dxp)
 
+## Interactions
+
+![dxp-transfer-directory-tree.svg](docs/figures/dxp-transfer-directory-tree.svg)
+
 ## Source Code
 
 Some of the code and concepts are based on my "trials and errors" and side projects.
