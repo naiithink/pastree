@@ -10,72 +10,63 @@ participant "fs:SenderFilesystem" as SenderFS
 participant "bf:SenderBuffer" as SenderBF
 participant "ps:Sender" as Sender
 participant "ps:Recipient" as Recipient
+' participant "fs:RecipientBuffer" as RecipientBF
 ' participant "fs:RecipientFilesystem" as RecipientFS
 
 autonumber
 
 legend bottom left
 1.  Request to receive a directory tree rooted at <DIR_NAME>
-2.  Refuse to send the directory tree rooted at <PATH>
-4.  INSERT INTO cookie_table
+3.  INSERT INTO cookie_table
         (id, expire_at, is_valid, next_path, ...)
         VALUES (<COOKIE>, <EXPIRE_DATETIME>, 0, <NEXT_PATH>, ...);
-5.  Request to send a directory tree rooted at <DIR_NAME>
-7.  Accept to receive the directory tree
-8.  SELECT expire_at
+4.  Request to send a directory tree rooted at <DIR_NAME>
+6.  Accept to receive the directory tree
+7.  SELECT expire_at
         FROM cookie_table
         WHERE id = <COOKIE>;
-11. Tell that the cookie in request has expired.
-12. Tell that the request is faulty.
-13. UPDATE cookie_table
+10. Tell that the cookie in request has expired.
+11. Tell that the request is faulty.
+12. UPDATE cookie_table
         SET is_valid = 1
         WHERE id = <COOKIE>;
-14. Tell "you may request back to get the next available node"
-15. Get next node
-16. SELECT expire_at, is_valid, next_path
+13. Tell "you may request back to get the next available node"
+14. Get next node
+15. SELECT expire_at, is_valid, next_path
         FROM cookie_table
         WHERE id = <COOKIE>;
-19. Tell that the cookie in request has expired.
-20. UPDATE cookie_table
+' 18. UPDATE cookie_table
+'         SET expire_at = <(current datetime)>,
+'         WHERE id = <COOKIE>;
+18. Tell that the cookie in request has expired.
+19. UPDATE cookie_table
         SET expire_at = <(current datetime)>
         WHERE id = <COOKIE>;
+20. Tell that the request is faulty.
 21. Tell that the request is faulty.
-22. Tell that the request is faulty.
-27. UPDATE cookie_table
+26. UPDATE cookie_table
         SET expire_at = <(current datetime)>
         WHERE id = <COOKIE>;
-28. Send node and Eng checksum, and tell "this is the last node."
-32. UPDATE cookie_table
+27. Send node and Eng checksum, and tell "this is the last node."
+31. UPDATE cookie_table
         SET next_path = <NEXT_PATH>
         WHERE id = <COOKIE>;
-33. Send node and tell "there is at least one node left."
-35. Refuse to receive the directory tree
-36. UPDATE cookie_table
+32. Send node and tell "there is at least one node left."
+34. Refuse to receive the directory tree
+35. UPDATE cookie_table
         SET expire_at = <(current datetime)>
         WHERE id = <COOKIE>;
+' 36. Connection has been closed.
 endlegend
 
 activate Sender
 
-' opt 0
-opt Recipient requests to receive a directory tree
-
-Recipient -> Sender: PULL <PATH>\n...
-
-' opt 0 break 0
-break Sender refuses to send the directory tree
-
-Sender -->> Recipient: 1001 DECLINED\n...
-
-' opt 0 break 0
-end
-
-' opt 0
-end
+' alt 0
+alt Sender requests to send a directory tree
 
 Sender -> Sender: Generate cookie
 
-Sender ->> SenderBF: Put cookie record
+Sender ->> SenderBF: Put cookie record (remember cookie)
 activate SenderBF
 deactivate SenderBF
 
@@ -86,9 +77,35 @@ activate Recipient
 Recipient -> Recipient: Remember cookie
 
 ' alt 0
-alt Recipient accepts to receive the directory tree
+else Recipient requests to receive a directory tree
+
+Recipient -> Recipient: Generate cookie
+Recipient -> Recipient: Remember cookie
+Recipient -> Sender: PULL <PATH>\nCookie: <COOKIE>\nCookie-Expire: <EXPIRE_DATETIME>\n...
+
+Sender ->> SenderBF: Put cookie record (remember cookie)
+activate SenderBF
+deactivate SenderBF
+
+' alt 0
+end
+
+' alt 1
+alt Recipient accepts to receive
+
+' alt 1 alt 0
+alt Sender requests to send a directory tree
 
 Recipient -->> Sender: 1000 ACCEPTED\nCookie: <COOKIE>\n...
+
+' alt 1 alt 0
+else Recipient requests to receive a directory tree 
+
+Sender -->> Recipient: 1000 ACCEPTED\nCookie: <COOKIE>\n...
+
+' alt 1 alt 0
+end
+
 
 Sender -> SenderBF: Get cookie record
 activate SenderBF
@@ -139,19 +156,19 @@ break Faulty cookie
 ' break 1 alt 0
 alt Cookie has expired
 
-Sender -->> Recipient: 1002 COOKIE EXPIRED\n...
+Sender ->> Recipient: 1002 COOKIE EXPIRED\n...
 
 else Cookie is invalid
 
-Sender ->> SenderBF: Expire out the cookie record
+Sender ->> SenderBF: Expire out the cookie record (forget cookie)
 activate SenderBF
 deactivate SenderBF
 
-Sender -->> Recipient: 74 EBADMSG\n...
+Sender ->> Recipient: 74 EBADMSG\n...
 
 else Cookie does not exist
 
-Sender -->> Recipient:  74 EBADMSG\n...
+Sender ->> Recipient:  74 EBADMSG\n...
 
 ' break 1 alt 0
 end
@@ -170,7 +187,7 @@ Sender -> Sender: Calculate Eng checksum
 ' break 2
 break No nodes left
 
-Sender ->> SenderBF: Expire out the cookie record
+Sender ->> SenderBF: Expire out the cookie record (forget cookie)
 activate SenderBF
 deactivate SenderBF
 
@@ -192,14 +209,26 @@ Recipient -> Recipient: Calculate Chang checksum
 ' loop 0
 end
 
-' alt 0
-else Recipient refuses to receive the directory tree
+' alt 1
+else Recipient refuses to receive
+
+' alt 1 alt 0
+alt Sender requests to send a directory tree
 
 Recipient -->> Sender: 1001 DECLINED\nCookie: <COOKIE>\n...
 
-Sender ->> SenderBF: Expire out the cookie record
+Sender ->> SenderBF: Expire out the cookie record (forget cookie)
 activate SenderBF
 deactivate SenderBF
+
+' alt 1 alt 0
+else Recipient requests to receive a directory tree 
+
+Sender -->> Recipient: 1001 DECLINED\nCookie: <COOKIE>\n...
+Recipient -> Recipient: Forget cookie
+
+' alt 1 alt 0
+end
 
 'alt 0
 end
