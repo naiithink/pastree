@@ -1,0 +1,89 @@
+version: "3.8"
+services:
+  server0:
+    hostname: pastree-server
+    build:
+      context: ./containers
+      dockerfile: server.Dockerfile
+      cache_from:
+        - ubuntu:jammy
+      args:
+        - DEFAULT_CC=${DEFAULT_CC}
+        - DEFAULT_EDITOR=${DEFAULT_EDITOR}
+        - ROOT_PWD=${SERVER0_ROOT_PWD}
+        - GID0=${SERVER0_GID0}
+        - GID0_NAME=${SERVER0_GID0_NAME}
+        - UID0=${SERVER0_UID0}
+        - UID0_PWD=${SERVER0_UID0_PWD}
+        - UID0_NAME=${SERVER0_UID0_NAME}
+        - UID0_GECOS=${SERVER0_UID0_GECOS}
+        - UID1=${SERVER0_UID1}
+        - UID1_PWD=${SERVER0_UID1_PWD}
+        - UID1_NAME=${SERVER0_UID1_NAME}
+        - UID1_GECOS=${SERVER0_UID1_GECOS}
+        - UID2=${SERVER0_UID2}
+        - UID2_PWD=${SERVER0_UID2_PWD}
+        - UID2_NAME=${SERVER0_UID2_NAME}
+        - UID2_GECOS=${SERVER0_UID2_GECOS}
+    networks:
+      pastree-sandbox:
+        ipv4_address: 192.168.1.1
+    command: /usr/bin/env bash
+    stdin_open: true
+    tty: true
+
+  client0:
+    hostname: pastree-client-0
+    build:
+      context: ./containers
+      dockerfile: client.Dockerfile
+      cache_from:
+        - ubuntu:jammy
+      args:
+        - DEFAULT_CC=${DEFAULT_CC}
+        - DEFAULT_EDITOR=${DEFAULT_EDITOR}
+        - ROOT_PWD=${CLIENT0_ROOT_PWD}
+        - GID0=${CLIENT0_GID0}
+        - GID0_NAME=${CLIENT0_GID0_NAME}
+        - UID0=${CLIENT0_UID0}
+        - UID0_PWD=${CLIENT0_UID0_PWD}
+        - UID0_NAME=${CLIENT0_UID0_NAME}
+        - UID0_GECOS=${CLIENT0_UID0_GECOS}
+    networks:
+      pastree-sandbox:
+        ipv4_address: 192.168.2.1
+    command: /usr/bin/env bash
+    stdin_open: true
+    tty: true
+
+  client1:
+    hostname: pastree-client-1
+    build:
+      context: ./containers
+      dockerfile: client.Dockerfile
+      cache_from:
+        - ubuntu:jammy
+      args:
+        - DEFAULT_CC=${DEFAULT_CC}
+        - DEFAULT_EDITOR=${DEFAULT_EDITOR}
+        - ROOT_PWD=${CLIENT1_ROOT_PWD}
+        - GID0=${CLIENT1_GID0}
+        - GID0_NAME=${CLIENT1_GID0_NAME}
+        - UID0=${CLIENT1_UID0}
+        - UID0_PWD=${CLIENT1_UID0_PWD}
+        - UID0_NAME=${CLIENT1_UID0_NAME}
+        - UID0_GECOS=${CLIENT1_UID0_GECOS}
+    networks:
+      pastree-sandbox:
+        ipv4_address: 192.168.2.2
+    command: /usr/bin/env bash
+    stdin_open: true
+    tty: true
+
+networks:
+  pastree-sandbox:
+    ipam:
+      # Non-swarm: using 'bridge' driver <https://docs.docker.com/compose/compose-file/compose-file-v3/#driver-1>
+      driver: default
+      config:
+        - subnet: 192.168.0.0/16
