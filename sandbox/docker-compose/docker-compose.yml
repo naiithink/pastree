@@ -3,8 +3,8 @@ services:
   server0:
     hostname: pastree-server
     build:
-      context: ./containers
-      dockerfile: server.Dockerfile
+      context: ./pastree-server
+      dockerfile: Dockerfile
       cache_from:
         - ubuntu:jammy
       args:
@@ -35,8 +35,8 @@ services:
   client0:
     hostname: pastree-client-0
     build:
-      context: ./containers
-      dockerfile: client.Dockerfile
+      context: ./pastree-client
+      dockerfile: Dockerfile
       cache_from:
         - ubuntu:jammy
       args:
@@ -59,8 +59,8 @@ services:
   client1:
     hostname: pastree-client-1
     build:
-      context: ./containers
-      dockerfile: client.Dockerfile
+      context: ./pastree-client
+      dockerfile: Dockerfile
       cache_from:
         - ubuntu:jammy
       args:
