@@ -1,6 +1,7 @@
 NAME			:= libdxp_static
 CC				:= clang
-CFLAGS			:= -lmagic
+CFLAGS			:=
+LDFLAGS			= -lcrypt -lmagic -lssl
 LIBSOURCE_DIR	= lib
 BUILD_DIR		= build
 TEST_DIR		= tests
@@ -14,10 +15,10 @@ all: clean $(LIB_OUT)
 	ar r $(LIBSOURCE_DIR)/$@ $(LIBSOURCE_DIR)/$<
 
 %.so: %.o
-	$(CC) $(CFLAGS) -shared -o $(LIBSOURCE_DIR)/$@ $(LIBSOURCE_DIR)/$<
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $(LIBSOURCE_DIR)/$@ $(LIBSOURCE_DIR)/$<
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -fPIC -o $(BUILD_DIR)/$@ $(LIBSOURCE_DIR)/$<
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -fPIC -o $(BUILD_DIR)/$@ $(LIBSOURCE_DIR)/$<
 
 clean:
 	$(RM) -rf build/libdxp*.a \
