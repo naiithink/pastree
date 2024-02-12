@@ -60,14 +60,19 @@ activate Sender
 ' opt 0
 opt Recipient requests to receive a directory tree
 
-Recipient -> Sender: PULL <PATH>\n...
+Recipient -> Sender: PULL <PATH>\nCookie: <COOKIE>\n...
 
-' opt 0 break 0
-break Sender refuses to send the directory tree
+' opt 0 alt 0
+alt Sender accepts to send the directory tree
 
-Sender -->> Recipient: 1001 DECLINED\n...
+Sender -->> Recipient: 1000 ACCEPTED\nCookie: <COOKIE>\n...
 
-' opt 0 break 0
+' opt 0 alt 0
+else Sender refuses to send the directory tree
+
+Sender -->> Recipient: 1001 DECLINED\nCookie: <COOKIE>\n...
+
+' opt 0 alt 0
 end
 
 ' opt 0
