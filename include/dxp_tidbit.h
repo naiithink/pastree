@@ -46,60 +46,48 @@ extern "C"
 #define DXP_NODE_TYPE_S_IFSOCK            0b0110 /* socket */
 #define DXP_NODE_TYPE_S_IFWHT             0b0111 /* whiteout */
 
-    struct __dxp_tidbit_headline_request
-    {
-        int method;
-        union
-        {
-            char *pull_path;
-            char *push_name;
-        };
-    };
-
-    union __dxp_tidbit_headline
-    {
-        int                                  status;
-        struct __dxp_tidbit_headline_request request;
-    };
-
-    /**
-     * DXP tidbit
-     */
+/**
+ * Tidbit header
+ */
+#pragma pack(push)
     typedef struct
     {
-        uint8_t *dxp_version_major;
-        uint8_t *dxp_version_minor;
-        uint8_t *dxp_version_patch;
-        time_t   date;
-        uint32_t reserved0;
-        uint16_t status;
-        uint8_t  method;
-        uint8_t  node_type;
-        uint8_t  control_inst;
+        uint8_t  version_major;
+        uint8_t  version_minor;
+        uint8_t  version_patch;
         uint8_t  flags;
-        char    *cookie;
-        time_t  *cookie_expire_at;
-        char    *checksum;
-        char    *content_type;
-        char    *data;
-    } dxp_tidbit;
+        uint32_t unix_time;
+        uint32_t reserved0;
+#ifdef LITTLE_ENDIAN
+        uint8_t node_type : 4, method : 4;
+#else
+    uint8_t method : 4, node_type : 4;
+#endif
+        uint8_t  ctrl_inst;
+        uint16_t status;
+        uint8_t  digest_line_p;
+        uint8_t  data_line_p;
+    } dxp_tidbit_header;
+#pragma pack(pop)
 
     /**
-     * Raw DXP tidbit
+     * Tidbit body
+     * 2-D array of 32-bit data lines
      */
-    typedef struct
-    {
-        uint32_t headline;
-        uint8_t  flags;
-        uint32_t timestamp;
-        uint32_t reserved0;
-        uint8_t  method_n_nodetype;
-        uint8_t  control_inst;
-        uint16_t status;
-        char    *data;
-    } dxp_tidbit_raw;
+    typedef uint32_t dxp_tidbit_body;
 
-    int parse_raw(dxp_tidbit_raw *, dxp_tidbit **);
+    dxp_tidbit_header *dxp_tidbit_header_new(uint8_t, uint8_t, uint8_t, uint8_t,
+                                             uint32_t, uint32_t, uint8_t,
+                                             uint8_t, uint16_t, uint8_t,
+                                             uint8_t);
+
+    void dxp_tidbit_header_clean(dxp_tidbit_header **);
+
+    void dxp_tidbit_serialize(dxp_tidbit_header *, dxp_tidbit_body *, size_t,
+                              unsigned char **, size_t);
+
+    void dxp_tidbit_sdeserialize(dxp_tidbit_header *, dxp_tidbit_body *,
+                                 unsigned char *, size_t, size_t);
 
 #ifdef __cplusplus
 }

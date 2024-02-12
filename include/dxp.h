@@ -24,16 +24,6 @@ extern "C"
      */
     int dxp_get_method(char *);
 
-    /**
-     * Parse request tidbit
-     */
-    int dxp_parse_request(char *, dxp_tidbit *);
-
-    /**
-     * Parse response tidbit
-     */
-    int dxp_parse_response(char *, dxp_tidbit *);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
