@@ -27,6 +27,10 @@
         "dxp_status.h": "c",
         "dxp_crypto.h": "c",
         "dxp_method.h": "c",
-        "dxp_error.h": "c"
+        "dxp_error.h": "c",
+        "cstypes.h": "c",
+        "unordered_map": "c",
+        "dxp_tidbit.h": "c",
+        "cstdint": "c"
     },
 }
