@@ -1,7 +1,7 @@
 NAME			:= libdxp_static
 CC				:= clang
-CFLAGS			:=
-LDFLAGS			= -lcrypt -lmagic -lssl
+CFLAGS			=
+LDFLAGS			= -lcrypto -lmagic -lssl
 LIBSOURCE_DIR	= lib
 BUILD_DIR		= build
 TEST_DIR		= tests
