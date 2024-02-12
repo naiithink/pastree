@@ -65,8 +65,8 @@ extern "C"
 #endif
         uint8_t  ctrl_inst;
         uint16_t status;
-        uint8_t  digest_line_p;
-        uint8_t  data_line_p;
+        uint16_t digest_line_p;
+        uint16_t data_line_p;
     } dxp_tidbit_header;
 #pragma pack(pop)
 
@@ -78,8 +78,8 @@ extern "C"
 
     dxp_tidbit_header *dxp_tidbit_header_new(uint8_t, uint8_t, uint8_t, uint8_t,
                                              uint32_t, uint32_t, uint8_t,
-                                             uint8_t, uint16_t, uint8_t,
-                                             uint8_t);
+                                             uint8_t, uint16_t, uint16_t,
+                                             uint16_t);
 
     void dxp_tidbit_header_clean(dxp_tidbit_header **);
 

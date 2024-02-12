@@ -6,8 +6,8 @@ dxp_tidbit_header *
 dxp_tidbit_header_new(uint8_t version_major, uint8_t version_minor,
                       uint8_t version_patch, uint8_t flags, uint32_t unix_time,
                       uint32_t reserved0, uint8_t node_type_n_method,
-                      uint8_t ctrl_inst, uint16_t status, uint8_t digest_line_p,
-                      uint8_t data_line_p)
+                      uint8_t ctrl_inst, uint16_t status,
+                      uint16_t digest_line_p, uint16_t data_line_p)
 
 {
     dxp_tidbit_header *header = calloc(1, sizeof(dxp_tidbit_header));
