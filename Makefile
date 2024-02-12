@@ -1,26 +1,54 @@
-NAME			:= libdxp_static
+LIB_DIR			:= lib
+OBJ_DIR			:= obj
+INCLUDE_DIR		:= include
+SRC_DIR			:= src
+
+SRC_FILES		:= $(wildcard $(SRC_DIR)/*.c)
+OBJ_FILES		:= $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC_FILES))
+
+LIB_NAME		:= libdxp
 CC				:= clang
-CFLAGS			=
+CFLAGS			= -I$(INCLUDE_DIR)
 LDFLAGS			= -lcrypto -lmagic -lssl
-LIBSOURCE_DIR	= lib
-BUILD_DIR		= build
-TEST_DIR		= tests
-LIB_OUT			:= libdxp_static.a libdxp_shared.so
+DYFLAGS			= -fPIC -shared
 
-.PHONY: all clean test .FORCE
+LIB_STATIC		:= $(LIB_NAME).a
+LIB_SHARED		:=
 
-all: clean $(LIB_OUT)
+UNAME			:= $(shell uname)
 
-%.a: %.o
-	ar r $(LIBSOURCE_DIR)/$@ $(LIBSOURCE_DIR)/$<
+ifeq ($(UNAME), Darwin)
+	LIB_SHARED	:= $(LIB_NAME).dylib
+else ifeq ($(UNAME), Linux)
+	LIB_SHARED	:= $(LIB_NAME).so
+else
+	$(error Unsupported OS: $(UNAME))
+endif
 
-%.so: %.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $(LIBSOURCE_DIR)/$@ $(LIBSOURCE_DIR)/$<
+TARGET			:= $(LIB_DIR)/$(LIB_STATIC) $(LIB_DIR)/$(LIB_SHARED)
 
-%.o: %.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -c -fPIC -o $(BUILD_DIR)/$@ $(LIBSOURCE_DIR)/$<
+.PHONY: clean all .FORCE
+all: clean $(TARGET)
+
+$(TARGET): $(OBJ_FILES) | $(LIB_DIR)
+
+$(LIB_DIR)/%.a: $(OBJ_FILES)
+	ar rcs $@ $^
+
+$(LIB_DIR)/%.dylib: $(OBJ_FILES)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DYFLAGS) -o $@ $^
+
+$(LIB_DIR)/%.so: $(OBJ_FILES)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DYFLAGS) -o $@ $^
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDE_DIR)/%.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o $@ $<
+
+$(LIB_DIR):
+	@mkdir -p $@
+
+$(OBJ_DIR):
+	@mkdir -p $@
 
 clean:
-	$(RM) -rf build/libdxp*.a \
-		build/libdxp*.so \
-		build/libdxp*.dSYM
+	@$(RM) -rf $(LIB_DIR) $(OBJ_DIR)

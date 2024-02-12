@@ -1,14 +1,17 @@
-CC		:= clang
-CFLAGS	=
-LDFLAGS	= -lcrypto -lmagic -lssl
-OUT		:= server
+BIN			:= test
 
-.PHONY:	all clean .FORCE
+CC			:= clang
+CFLAGS		:= -I../../include
+CPPFLAGS	:= -L../../lib
+LDFLAGS		:= -ldxp
 
-all: clean $(OUT)
+TARGET		:= $(BIN)
+
+.PHONY: clean all .FORCE
+all: clean $(TARGET)
 
 %: %.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $< -o $@
 
 clean:
-	@rm -rf $(OUT)
+	$(RM) -rf $(TARGET)
