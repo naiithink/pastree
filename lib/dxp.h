@@ -1,58 +1,43 @@
 #ifndef __DXP_H
 #define __DXP_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+
+#if (__STDC_VERSION__ < 199901L)
+#error "C Standard version not met"
+#elif (__STDC_VERSION__ >= 202311L)
+#define __DXP_STDC_2023
+#endif
+
 #include "dxp_common.h"
 #include "dxp_method.h"
 #include "dxp_status.h"
 
-union __dxp_tidbit_headline
-{
-    int request_method;
-    int reponse_status;
-};
+    typedef struct
+    {
+        long time;
+    } dxp_cookie_table;
 
-union __dxp_tidbit_node_reference
-{
-    char *request_pull_path;
-    char *request_push_name;
-};
+    /**
+     * Get method number from name
+     */
+    int dxp_get_method(char *);
 
-/**
- * DXP tidbit
- */
-typedef struct
-{
-    union __dxp_tidbit_headline;
-    char *dxp_version;
-    time_t date;
-    char *from;
-    char *to;
-    char *cookie;
-    char *token;
-    union __dxp_tidbit_node_reference;
-    char *reponse_digest;
-    char *reponse_content_type;
-    char *data;
-} dxp_tidbit;
+    /**
+     * Parse request tidbit
+     */
+    int dxp_parse_request(char *, dxp_tidbit *);
 
-typedef struct
-{
-    long time;
-} dxp_job_table;
+    /**
+     * Parse response tidbit
+     */
+    int dxp_parse_response(char *, dxp_tidbit *);
 
-/**
- * Get method number from name
- */
-int dxp_get_method(char *);
-
-/**
- * Parse request tidbit
- */
-int dxp_parse_request(char *, dxp_tidbit *);
-
-/**
- * Parse response tidbit
- */
-int dxp_parse_response(char *, dxp_tidbit *);
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __DXP_H */

@@ -2,7 +2,7 @@
 
 char *dxp_strntrim(char *str, size_t lim)
 {
-    char *res = NULL;
+    char *res  = NULL;
     char *head = str;
 
     while (*head == ' ' && lim > 0)
@@ -24,15 +24,18 @@ char *dxp_strntrim(char *str, size_t lim)
     return res;
 }
 
-int dxp_split_field_pair(char *token, const char *const field_sep, char **field_pair)
+int dxp_split_field_pair(char *token, const char *const field_sep,
+                         char **field_pair)
 {
     if (token == NULL)
         return __DXP_STATUS_FAILURE;
 
     char *field_split_context;
 
-    field_pair[0] = dxp_strntrim(strtok_r(token, field_sep, &field_split_context), DXP_MAX_FIELD_LENGTH);
-    field_pair[1] = dxp_strntrim(strtok_r(NULL, field_sep, &field_split_context), DXP_MAX_FIELD_LENGTH);
+    field_pair[0] = dxp_strntrim(
+        strtok_r(token, field_sep, &field_split_context), DXP_MAX_FIELD_LENGTH);
+    field_pair[1] = dxp_strntrim(
+        strtok_r(NULL, field_sep, &field_split_context), DXP_MAX_FIELD_LENGTH);
 
     return __DXP_STATUS_SUCCESS;
 }
@@ -43,7 +46,7 @@ time_t dxp_parse_datetime(char *buf, char *format)
 
     if (format == NULL)
     {
-        int len = strnlen(buf, DXP_TIDBIT_DATETIME_FORMAT_RFC3339_LEN);
+        int len      = strnlen(buf, DXP_TIDBIT_DATETIME_FORMAT_RFC3339_LEN);
         buf[len - 3] = buf[len - 2];
         buf[len - 2] = buf[len - 1];
         buf[len - 1] = '\0';
@@ -66,11 +69,12 @@ size_t dxp_format_datetime(char *buf, char *format, time_t time)
     /* RFC3339 */
     size_t char_count = 0;
 
-    int len = DXP_TIDBIT_DATETIME_FORMAT_RFC3339_LEN;
+    int len   = DXP_TIDBIT_DATETIME_FORMAT_RFC3339_LEN;
     tm_struct = localtime(&time);
 
-    char_count = strftime(buf, len, DXP_TIDBIT_DATETIME_FORMAT_RFC822, tm_struct);
-    buf[len] = '\0';
+    char_count =
+        strftime(buf, len, DXP_TIDBIT_DATETIME_FORMAT_RFC822, tm_struct);
+    buf[len]     = '\0';
     buf[len - 1] = buf[len - 2];
     buf[len - 2] = buf[len - 3];
     buf[len - 3] = ':';
