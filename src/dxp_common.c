@@ -1,4 +1,4 @@
-#include "dxp_common.h"
+#include "../include/dxp_common.h"
 
 char *dxp_strntrim(char *str, size_t lim)
 {

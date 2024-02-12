@@ -1,6 +1,6 @@
-#include "dxp_cookie.h"
+#include "../include/dxp_cookie.h"
 
-#include "dxp_common.h"
+#include "../include/dxp_common.h"
 
 static unsigned long __seed = 0;
 

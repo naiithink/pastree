@@ -12,12 +12,12 @@ extern "C"
 #define DXP_METHOD_NAME_LIST_TERM '$'
 
 #define DXP_METHODS                                                            \
-    X("EDEFN")                                                                 \
-    X("PLUCK")                                                                 \
+    X("PULL")                                                                  \
+    X("PUSH")                                                                  \
     X("PICK")                                                                  \
     X("PACK")
 
-    char *methods[] = {
+    static char *methods[] = {
 #define X(s) s,
         DXP_METHODS
 #undef X

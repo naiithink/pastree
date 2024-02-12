@@ -6,6 +6,8 @@ extern "C"
 {
 #endif /* __cplusplus */
 
+#include "dxp_common.h"
+
 #define DXP_LINE_TERMINATOR                    "\r\n"
 #define DXP_FIRST_FIELD_SEPARATOR              " "
 #define DXP_FIELD_SEPARATOR                    ":"

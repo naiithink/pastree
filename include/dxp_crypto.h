@@ -2,8 +2,7 @@
 #define __DXP_CRYPTO_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif /* __cplusplus */
 
 /* #include <openssl/bio.h> */
@@ -28,6 +27,8 @@ extern "C"
     typedef EVP_MD_CTX dxp_digest_context;
 
     typedef const EVP_MD *dxp_digest;
+
+    dxp_digest_context *dxp_digest_new_context(void);
 
     int dxp_digest_init(dxp_digest_context **, dxp_digest);
 

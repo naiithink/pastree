@@ -1,6 +1,6 @@
-#include "dxp_tidbit.h"
+#include "../include/dxp_tidbit.h"
 
-#include "dxp_common.h"
+#include "../include/dxp_common.h"
 
 int parse_raw(dxp_tidbit_raw *tidbit_raw, dxp_tidbit **tidbit)
 {

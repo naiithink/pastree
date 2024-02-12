@@ -12,9 +12,7 @@ extern "C"
 #define __DXP_STDC_2023
 #endif
 
-#include "dxp_common.h"
-#include "dxp_method.h"
-#include "dxp_status.h"
+#include "dxp_tidbit.h"
 
     typedef struct
     {
