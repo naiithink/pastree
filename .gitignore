@@ -3,9 +3,9 @@ src/*
 !src/Makefile
 !src/*.[hc]
 
-sandbox/src/*
-!sandbox/src/Makefile
-!sandbox/src/test_dxp*.c
+sandbox/lib/*
+!sandbox/lib/Makefile
+!sandbox/lib/test_dxp*.c
 
 # C
 # Prerequisites
