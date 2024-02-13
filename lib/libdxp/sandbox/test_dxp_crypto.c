@@ -1,5 +1,8 @@
-#include "../../lib/dxp_crypto.h"
-#include "../../lib/dxp_crypto.c"
+#include <string.h>
+
+#include <openssl/sha.h>
+
+#include "../include/dxp/dxp_crypto.h"
 
 int main(int argc, char **argv)
 {

@@ -1,6 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "../../lib/dxp_common.h"
-#include "../../lib/dxp_common.c"
+#include "../include/dxp/dxp.h"
 
 int main(int argc, char **argv) { return EXIT_SUCCESS; }

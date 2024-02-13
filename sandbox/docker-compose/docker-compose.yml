@@ -6,7 +6,7 @@ services:
       context: ./pastree-server
       dockerfile: Dockerfile
       cache_from:
-        - ubuntu:jammy
+        - naiithink/pastree:server-1.0.0
       args:
         - DEFAULT_CC=${DEFAULT_CC}
         - DEFAULT_EDITOR=${DEFAULT_EDITOR}
@@ -25,6 +25,7 @@ services:
         - UID2_PWD=${SERVER0_UID2_PWD}
         - UID2_NAME=${SERVER0_UID2_NAME}
         - UID2_GECOS=${SERVER0_UID2_GECOS}
+    image: naiithink/pastree:server-1.0.0
     networks:
       pastree-sandbox:
         ipv4_address: 192.168.1.1
@@ -38,7 +39,7 @@ services:
       context: ./pastree-client
       dockerfile: Dockerfile
       cache_from:
-        - ubuntu:jammy
+        - naiithink/pastree:client-1.0.0
       args:
         - DEFAULT_CC=${DEFAULT_CC}
         - DEFAULT_EDITOR=${DEFAULT_EDITOR}
@@ -49,6 +50,7 @@ services:
         - UID0_PWD=${CLIENT0_UID0_PWD}
         - UID0_NAME=${CLIENT0_UID0_NAME}
         - UID0_GECOS=${CLIENT0_UID0_GECOS}
+    image: naiithink/pastree:client-1.0.0
     networks:
       pastree-sandbox:
         ipv4_address: 192.168.2.1
@@ -62,7 +64,7 @@ services:
       context: ./pastree-client
       dockerfile: Dockerfile
       cache_from:
-        - ubuntu:jammy
+        - naiithink/pastree:client-1.0.0
       args:
         - DEFAULT_CC=${DEFAULT_CC}
         - DEFAULT_EDITOR=${DEFAULT_EDITOR}
@@ -73,6 +75,7 @@ services:
         - UID0_PWD=${CLIENT1_UID0_PWD}
         - UID0_NAME=${CLIENT1_UID0_NAME}
         - UID0_GECOS=${CLIENT1_UID0_GECOS}
+    image: naiithink/pastree:client-1.0.0
     networks:
       pastree-sandbox:
         ipv4_address: 192.168.2.2

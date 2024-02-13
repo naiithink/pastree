@@ -2,8 +2,11 @@
 #define __DXP_CRYPTO_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif /* __cplusplus */
+
+#include <stdbool.h>
 
 /* #include <openssl/bio.h> */
 #include <openssl/evp.h>
@@ -16,8 +19,6 @@ extern "C" {
 #if (OPENSSL_VERSION_NUMBER < MIN_OPENSSL_VERSION)
 #error "OpenSSL version not met. Check MIN_OPENSSL_VERSION"
 #endif
-
-#include "dxp_common.h"
 
 #define DXP_DIGEST_ALGO_SHA256     EVP_sha256()
 #define DXP_DIGEST_ALGO_SHA256_LEN SHA256_DIGEST_LENGTH

@@ -6,6 +6,17 @@ extern "C"
 {
 #endif /* __cplusplus */
 
+/**
+ * C11      memcpy_s
+ */
+#if (__STDC_VERSION__ < 201112L)
+#error "C Standard version not met"
+#elif (__STDC_VERSION__ >= 202311L)
+#define __DXP_STDC_2023
+#endif
+
+#define __STDC_LIB_EXT1__ 1
+
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <stdbool.h>
@@ -22,11 +33,8 @@ extern "C"
 
 #include <magic.h>
 
-#include "dxp_cookie.h"
 #include "dxp_error.h"
-#include "dxp_method.h"
 #include "dxp_status.h"
-#include "dxp_tidbit.h"
 
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #include <windows.h>
@@ -36,6 +44,14 @@ extern "C"
 #elif defined(__linux__)
 #include <linux/limits.h>
 #endif
+
+/**
+ * #define SIZE_MAX          UINTPTR_MAX
+ * #define RSIZE_MAX         (SIZE_MAX >> 1)
+ */
+#define INTSIZE_MAX (UINTPTR_MAX >> 1)
+
+    void *dxp_memcpy(void *, rsize_t, const void *, rsize_t);
 
     /**
      * Trim string
@@ -59,6 +75,8 @@ extern "C"
      * Local time.
      */
     size_t dxp_format_datetime(char *, char *, time_t);
+
+    void dxp_print_bin(int);
 
 #ifdef __cplusplus
 }

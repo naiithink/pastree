@@ -1,54 +1,21 @@
-LIB_DIR			:= lib
-OBJ_DIR			:= obj
-INCLUDE_DIR		:= include
+BIN_DIR			:= bin
 SRC_DIR			:= src
+INCLUDE_DIR		:= include
+LIB_DIR			:= lib
 
-SRC_FILES		:= $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES		:= $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC_FILES))
-
-LIB_NAME		:= libdxp
 CC				:= clang
-CFLAGS			= -I$(INCLUDE_DIR)
-LDFLAGS			= -lcrypto -lmagic -lssl
-DYFLAGS			= -fPIC -shared
+CFLAGS			:= -O2
+CPPFLAGS		:= -I$(INCLUDE_DIR)
+LDFLAGS			:= -L$(LIB_DIR) -ldxp
 
-LIB_STATIC		:= $(LIB_NAME).a
-LIB_SHARED		:=
+.PHONY: clean all bin libs .FORCE
+all: clean libs bin
 
-UNAME			:= $(shell uname)
+bin:
 
-ifeq ($(UNAME), Darwin)
-	LIB_SHARED	:= $(LIB_NAME).dylib
-else ifeq ($(UNAME), Linux)
-	LIB_SHARED	:= $(LIB_NAME).so
-else
-	$(error Unsupported OS: $(UNAME))
-endif
-
-TARGET			:= $(LIB_DIR)/$(LIB_STATIC) $(LIB_DIR)/$(LIB_SHARED)
-
-.PHONY: clean all .FORCE
-all: clean $(TARGET)
-
-$(TARGET): $(OBJ_FILES) | $(LIB_DIR)
-
-$(LIB_DIR)/%.a: $(OBJ_FILES)
-	ar rcs $@ $^
-
-$(LIB_DIR)/%.dylib: $(OBJ_FILES)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(DYFLAGS) -o $@ $^
-
-$(LIB_DIR)/%.so: $(OBJ_FILES)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(DYFLAGS) -o $@ $^
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDE_DIR)/%.h | $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) -c -o $@ $<
-
-$(LIB_DIR):
-	@mkdir -p $@
-
-$(OBJ_DIR):
-	@mkdir -p $@
+libs:
+	$(MAKE) -C $(LIB_DIR) CC?=$(CC) CFLAGS+="$(CFLAGS)" CPPFLAGS+="$(CPPFLAGS)" LDFLAGS+="$(LDFLAGS)"
 
 clean:
-	@$(RM) -rf $(LIB_DIR) $(OBJ_DIR)
+	$(MAKE) -C $(LIB_DIR) clean
+	$(RM) -rf $(BIN_DIR)

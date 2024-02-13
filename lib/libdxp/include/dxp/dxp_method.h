@@ -7,13 +7,13 @@ extern "C"
 #endif /* __cplusplus */
 
 #define DXP_METHOD_MAX_NAME_LEN   9
-#define DXP_MAX_FIELD_PAIR_LENGTH 80
-#define DXP_MAX_FIELD_LENGTH      (DXP_MAX_FIELD_PAIR_LENGTH / 2)
+#define DXP_MAX_FIELD_PAIR_LEN 80
+#define DXP_MAX_FIELD_LEN      (DXP_MAX_FIELD_PAIR_LEN / 2)
 #define DXP_METHOD_NAME_LIST_TERM '$'
 
 #define DXP_METHODS                                                            \
-    X("PULL")                                                                  \
     X("PUSH")                                                                  \
+    X("PULL")                                                                  \
     X("PICK")                                                                  \
     X("PACK")
 

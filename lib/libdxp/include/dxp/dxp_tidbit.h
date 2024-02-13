@@ -6,7 +6,8 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-#include "dxp_common.h"
+#include <stdint.h>
+#include <stdio.h>
 
 #define DXP_LINE_TERMINATOR                    "\r\n"
 #define DXP_FIRST_FIELD_SEPARATOR              " "
@@ -76,18 +77,25 @@ extern "C"
      */
     typedef uint32_t dxp_tidbit_body;
 
+    static const size_t DXP_TIDBIT_HEADER_SIZE    = sizeof(dxp_tidbit_header);
+    static const size_t DXP_TIDBIT_BODY_LINE_SIZE = sizeof(dxp_tidbit_body);
+
+#define DXP_TIDBIT_HEADER_NULLARY 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
     dxp_tidbit_header *dxp_tidbit_header_new(uint8_t, uint8_t, uint8_t, uint8_t,
                                              uint32_t, uint32_t, uint8_t,
                                              uint8_t, uint16_t, uint16_t,
                                              uint16_t);
 
-    void dxp_tidbit_header_clean(dxp_tidbit_header **);
+    void dxp_tidbit_header_clean(dxp_tidbit_header *);
+
+    size_t dxp_tidbit_total_sizeof(unsigned);
 
     void dxp_tidbit_serialize(dxp_tidbit_header *, dxp_tidbit_body *, size_t,
-                              unsigned char **, size_t);
+                              unsigned char *, size_t);
 
-    void dxp_tidbit_sdeserialize(dxp_tidbit_header *, dxp_tidbit_body *,
-                                 unsigned char *, size_t, size_t);
+    void dxp_tidbit_deserialize(dxp_tidbit_header *, dxp_tidbit_body *,
+                                unsigned char *, size_t);
 
 #ifdef __cplusplus
 }

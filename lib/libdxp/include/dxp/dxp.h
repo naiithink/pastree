@@ -6,7 +6,10 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-#if (__STDC_VERSION__ < 199901L)
+/**
+ * C11      memcpy_s
+ */
+#if (__STDC_VERSION__ < 201112L)
 #error "C Standard version not met"
 #elif (__STDC_VERSION__ >= 202311L)
 #define __DXP_STDC_2023

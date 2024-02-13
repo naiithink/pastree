@@ -1,6 +1,7 @@
-#include "../include/dxp.h"
+#include "../include/dxp/dxp_common.h"
+#include "../include/dxp/dxp_method.h"
 
-#include "../include/dxp_common.h"
+#include "../include/dxp/dxp.h"
 
 int dxp_get_method(char *token)
 {

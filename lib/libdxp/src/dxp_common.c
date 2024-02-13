@@ -1,4 +1,18 @@
-#include "../include/dxp_common.h"
+#include "../include/dxp/dxp_common.h"
+
+#include "../include/dxp/dxp_method.h"
+#include "../include/dxp/dxp_tidbit.h"
+
+void *dxp_memcpy(void *dst, rsize_t dst_size, const void *src, rsize_t count)
+{
+    if (count > dst_size || dst_size > INTSIZE_MAX)
+    {
+        __DXP_DEBUG_PRINTF("Invalid destination size");
+        return NULL;
+    }
+
+    return memcpy(dst, src, count);
+}
 
 char *dxp_strntrim(char *str, size_t lim)
 {
@@ -33,9 +47,9 @@ int dxp_split_field_pair(char *token, const char *const field_sep,
     char *field_split_context;
 
     field_pair[0] = dxp_strntrim(
-        strtok_r(token, field_sep, &field_split_context), DXP_MAX_FIELD_LENGTH);
+        strtok_r(token, field_sep, &field_split_context), DXP_MAX_FIELD_LEN);
     field_pair[1] = dxp_strntrim(
-        strtok_r(NULL, field_sep, &field_split_context), DXP_MAX_FIELD_LENGTH);
+        strtok_r(NULL, field_sep, &field_split_context), DXP_MAX_FIELD_LEN);
 
     return __DXP_STATUS_SUCCESS;
 }
@@ -80,4 +94,13 @@ size_t dxp_format_datetime(char *buf, char *format, time_t time)
     buf[len - 3] = ':';
 
     return ++char_count;
+}
+
+void dxp_print_bin(int num)
+{
+    if (num == 0)
+        return;
+
+    dxp_print_bin(num >> 1);
+    printf("%d", num & 1);
 }
