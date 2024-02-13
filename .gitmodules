@@ -4,3 +4,6 @@
 [submodule "sandbox/docker-compose/pastree-client"]
 	path = sandbox/docker-compose/pastree-client
 	url = https://github.com/naiithink/pastree-client.git
+[submodule "lib/libdxp"]
+	path = lib/libdxp
+	url = git@github.com:naiithink/dxp.git
