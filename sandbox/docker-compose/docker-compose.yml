@@ -8,6 +8,8 @@ services:
       cache_from:
         - naiithink/pastree:server-1.0.0
       args:
+        - LIBDXP_GIT_REMOTE_URL=${LIBDXP_GIT_REMOTE_URL}
+        - LIBDXP_GIT_REF=${LIBDXP_GIT_REF}
         - DEFAULT_CC=${DEFAULT_CC}
         - DEFAULT_EDITOR=${DEFAULT_EDITOR}
         - ROOT_PWD=${SERVER0_ROOT_PWD}
@@ -41,6 +43,8 @@ services:
       cache_from:
         - naiithink/pastree:client-1.0.0
       args:
+        - LIBDXP_GIT_REMOTE_URL=${LIBDXP_GIT_REMOTE_URL}
+        - LIBDXP_GIT_REF=${LIBDXP_GIT_REF}
         - DEFAULT_CC=${DEFAULT_CC}
         - DEFAULT_EDITOR=${DEFAULT_EDITOR}
         - ROOT_PWD=${CLIENT0_ROOT_PWD}
@@ -66,6 +70,8 @@ services:
       cache_from:
         - naiithink/pastree:client-1.0.0
       args:
+        - LIBDXP_GIT_REMOTE_URL=${LIBDXP_GIT_REMOTE_URL}
+        - LIBDXP_GIT_REF=${LIBDXP_GIT_REF}
         - DEFAULT_CC=${DEFAULT_CC}
         - DEFAULT_EDITOR=${DEFAULT_EDITOR}
         - ROOT_PWD=${CLIENT1_ROOT_PWD}
