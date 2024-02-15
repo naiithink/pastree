@@ -5,7 +5,7 @@ src/*
 
 sandbox/lib/*
 !sandbox/lib/Makefile
-!sandbox/lib/test_dxp*.c
+!sandbox/lib/test_*.c
 
 # C
 # Prerequisites
