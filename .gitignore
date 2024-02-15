@@ -1,4 +1,6 @@
 # Project
+test.dev.pastree
+
 src/*
 !src/Makefile
 !src/*.[hc]
