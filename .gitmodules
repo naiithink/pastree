@@ -1,8 +1,8 @@
 [submodule "sandbox/docker-compose/pastree-server"]
-	path = sandbox/docker-compose/pastree-server
+	path = sandbox/pastree-server
 	url = https://github.com/naiithink/pastree-server.git
 [submodule "sandbox/docker-compose/pastree-client"]
-	path = sandbox/docker-compose/pastree-client
+	path = sandbox/pastree-client
 	url = https://github.com/naiithink/pastree-client.git
 [submodule "lib/libdxp"]
 	path = lib/libdxp
