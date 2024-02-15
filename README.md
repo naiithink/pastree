@@ -29,7 +29,7 @@ DXP Repository: [github.com/naiithink/dxp](https://github.com/naiithink/dxp)
 
 ## Interactions
 
-![dxp-transfer-directory-tree.svg](docs/figures/dxp-transfer-directory-tree.svg)
+![dxp-transfer-directory-tree.svg](assets/figures/dxp-transfer-directory-tree.svg)
 
 ## Source Code
 
