@@ -8,7 +8,7 @@ CFLAGS			:= -O2
 CPPFLAGS		:= -I$(INCLUDE_DIR)
 LDFLAGS			:= -L$(LIB_DIR) -ldxp
 
-.PHONY: clean all bin libs .FORCE
+.PHONY: all bin clean libs .FORCE
 all: clean libs bin
 
 bin:
