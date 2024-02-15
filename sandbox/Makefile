@@ -1,6 +1,6 @@
 CC				:= clang
-CFLAGS			:= -I../../include
-CPPFLAGS		:= -L../../lib
+CFLAGS			:= -I../include
+CPPFLAGS		:= -L../lib
 LDFLAGS			:= -ldxp
 
 LIB_DIR			:= lib
