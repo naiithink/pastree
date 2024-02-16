@@ -1,15 +1,24 @@
 version: "3.8"
 services:
-  server0:
-    hostname: pastree-server
+  base:
+    build:
+      context: ./images
+      dockerfile: base.Dockerfile
+      args:
+        - PASTREE_ROOT_IMAGE=${PASTREE_ROOT_IMAGE:?Invalid root image}
+        - LIBDXP_GIT_REMOTE_URL=${LIBDXP_GIT_REMOTE_URL}
+        - LIBDXP_GIT_REF=${LIBDXP_GIT_REF}
+    image: ${PASTREE_BASE_IMAGE:-${PASTREE_BASE_IMAGE_FALLBACK}}
+  server1:
+    hostname: pastree-server-1
+    depends_on:
+      - base
+    image: naiithink/pastree:server1
     build:
       context: ./pastree-server
       dockerfile: Dockerfile
-      cache_from:
-        - naiithink/pastree:server-1.0.0
       args:
-        - LIBDXP_GIT_REMOTE_URL=${LIBDXP_GIT_REMOTE_URL}
-        - LIBDXP_GIT_REF=${LIBDXP_GIT_REF}
+        - PASTREE_BASE_IMAGE=${PASTREE_BASE_IMAGE}
         - DEFAULT_CC=${DEFAULT_CC}
         - DEFAULT_EDITOR=${DEFAULT_EDITOR}
         - ROOT_PWD=${SERVER0_ROOT_PWD}
@@ -27,7 +36,6 @@ services:
         - UID2_PWD=${SERVER0_UID2_PWD}
         - UID2_NAME=${SERVER0_UID2_NAME}
         - UID2_GECOS=${SERVER0_UID2_GECOS}
-    image: naiithink/pastree:server-1.0.0
     networks:
       pastree-sandbox:
         ipv4_address: 192.168.1.1
@@ -35,16 +43,16 @@ services:
     stdin_open: true
     tty: true
 
-  client0:
-    hostname: pastree-client-0
+  client1:
+    hostname: pastree-client-1
+    depends_on:
+      - base
+    image: naiithink/pastree:client1
     build:
       context: ./pastree-client
       dockerfile: Dockerfile
-      cache_from:
-        - naiithink/pastree:client-1.0.0
       args:
-        - LIBDXP_GIT_REMOTE_URL=${LIBDXP_GIT_REMOTE_URL}
-        - LIBDXP_GIT_REF=${LIBDXP_GIT_REF}
+        - PASTREE_BASE_IMAGE=${PASTREE_BASE_IMAGE}
         - DEFAULT_CC=${DEFAULT_CC}
         - DEFAULT_EDITOR=${DEFAULT_EDITOR}
         - ROOT_PWD=${CLIENT0_ROOT_PWD}
@@ -54,7 +62,6 @@ services:
         - UID0_PWD=${CLIENT0_UID0_PWD}
         - UID0_NAME=${CLIENT0_UID0_NAME}
         - UID0_GECOS=${CLIENT0_UID0_GECOS}
-    image: naiithink/pastree:client-1.0.0
     networks:
       pastree-sandbox:
         ipv4_address: 192.168.2.1
@@ -62,16 +69,16 @@ services:
     stdin_open: true
     tty: true
 
-  client1:
-    hostname: pastree-client-1
+  client2:
+    hostname: pastree-client-2
+    depends_on:
+      - base
+    image: naiithink/pastree:client2
     build:
       context: ./pastree-client
       dockerfile: Dockerfile
-      cache_from:
-        - naiithink/pastree:client-1.0.0
       args:
-        - LIBDXP_GIT_REMOTE_URL=${LIBDXP_GIT_REMOTE_URL}
-        - LIBDXP_GIT_REF=${LIBDXP_GIT_REF}
+        - PASTREE_BASE_IMAGE=${PASTREE_BASE_IMAGE}
         - DEFAULT_CC=${DEFAULT_CC}
         - DEFAULT_EDITOR=${DEFAULT_EDITOR}
         - ROOT_PWD=${CLIENT1_ROOT_PWD}
@@ -81,7 +88,6 @@ services:
         - UID0_PWD=${CLIENT1_UID0_PWD}
         - UID0_NAME=${CLIENT1_UID0_NAME}
         - UID0_GECOS=${CLIENT1_UID0_GECOS}
-    image: naiithink/pastree:client-1.0.0
     networks:
       pastree-sandbox:
         ipv4_address: 192.168.2.2
